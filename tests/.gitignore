@@ -1,0 +1,13 @@
+# Generated test bundles
+*.bundle.js
+*.bundle.js.map
+
+# QUnit logs
+qunit-*.log
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Test artifacts
+test-results/

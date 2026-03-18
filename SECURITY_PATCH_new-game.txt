@@ -1,0 +1,341 @@
+// SECURITY ENHANCEMENT PATCH FOR new-game.tsx
+// Apply these changes to integrate comprehensive security validations
+
+// ============================================================================
+// 1. ADD IMPORTS (after existing imports, before MIN_STOCKS constant)
+// ============================================================================
+
+import {
+  sanitizeSearchQuery,
+  validateStockStructure,
+  validateStockSource,
+  validateSelectedStocks,
+  sanitizeStockSymbols,
+  isDuplicateStock,
+  logSuspiciousActivity,
+  RateLimiter,
+  SECURITY_CONFIG,
+} from '@/src/core/utils/securityValidation';
+
+
+// ============================================================================
+// 2. ADD RATE LIMITERS (inside component, after searchTimeoutRef)
+// ============================================================================
+
+  // Rate limiters (initialized once)
+  const searchRateLimiterRef = useRef(
+    new RateLimiter(SECURITY_CONFIG.SEARCH_RATE_LIMIT_MS, 'stock search')
+  );
+  const selectionRateLimiterRef = useRef(
+    new RateLimiter(SECURITY_CONFIG.STOCK_SELECTION_RATE_LIMIT_MS, 'stock selection')
+  );
+
+
+// ============================================================================
+// 3. ADD VALIDATION ERROR STATE (with other useState declarations)
+// ============================================================================
+
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+
+// ============================================================================
+// 4. REPLACE handleSearch FUNCTION
+// ============================================================================
+
+  // Debounced search with security validations
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query || query.trim().length === 0) {
+      setSearchResults([]);
+      setError(null);
+      setValidationError(null);
+      return;
+    }
+
+    // Rate limiting check
+    if (!searchRateLimiterRef.current.canPerform()) {
+      setValidationError('Please wait before searching again');
+      return;
+    }
+
+    try {
+      setSearching(true);
+      setError(null);
+      setValidationError(null);
+
+      // Sanitize and validate search query
+      const sanitizedQuery = sanitizeSearchQuery(query);
+
+      if (!sanitizedQuery || sanitizedQuery.length === 0) {
+        setValidationError('Please enter a valid search query');
+        setSearchResults([]);
+        return;
+      }
+
+      // Execute search with sanitized query
+      const results = await container.searchStocksUseCase.execute(sanitizedQuery);
+
+      // Validate each result before displaying
+      const validatedResults = results.filter(stock => {
+        const structureValid = validateStockStructure(stock);
+        const sourceValid = validateStockSource(stock);
+
+        if (!structureValid || !sourceValid) {
+          logSuspiciousActivity('Invalid stock in search results', { stock });
+          return false;
+        }
+        return true;
+      });
+
+      setSearchResults(validatedResults);
+
+      if (validatedResults.length === 0 && results.length > 0) {
+        logSuspiciousActivity('All search results failed validation', { resultsCount: results.length });
+        setError('Search results validation failed. Please try a different query.');
+      }
+
+    } catch (err) {
+      // Check if it's a security validation error
+      if (err instanceof Error && (
+        err.message.includes('injection') ||
+        err.message.includes('Invalid search query')
+      )) {
+        setValidationError(err.message);
+        logSuspiciousActivity('Search validation error', { query, error: err.message });
+      } else {
+        const userFriendlyError = categorizeSearchError(err);
+        setError(userFriendlyError);
+      }
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+
+// ============================================================================
+// 5. REPLACE handleSearchInputChange FUNCTION
+// ============================================================================
+
+  const handleSearchInputChange = (text: string) => {
+    // Enforce max length at input level
+    if (text.length > SECURITY_CONFIG.SEARCH_QUERY_MAX_LENGTH) {
+      text = text.substring(0, SECURITY_CONFIG.SEARCH_QUERY_MAX_LENGTH);
+      setValidationError(`Search limited to ${SECURITY_CONFIG.SEARCH_QUERY_MAX_LENGTH} characters`);
+    } else {
+      setValidationError(null);
+    }
+
+    setSearchQuery(text);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      handleSearch(text);
+    }, 500);
+  };
+
+
+// ============================================================================
+// 6. REPLACE handleSelectStock FUNCTION
+// ============================================================================
+
+  const handleSelectStock = (stock: Stock) => {
+    // Rate limiting for selection
+    if (!selectionRateLimiterRef.current.canPerform()) {
+      setValidationError('Please wait before selecting another stock');
+      return;
+    }
+
+    // Validate stock structure
+    if (!validateStockStructure(stock)) {
+      Alert.alert('Invalid Stock', 'This stock data is invalid');
+      logSuspiciousActivity('Attempted to select invalid stock structure', { stock });
+      return;
+    }
+
+    // Validate stock source
+    if (!validateStockSource(stock)) {
+      Alert.alert('Invalid Stock', 'This stock data failed validation');
+      logSuspiciousActivity('Attempted to select stock with invalid source', { stock });
+      return;
+    }
+
+    // Check if already selected (using enhanced duplicate detection)
+    if (isDuplicateStock(stock, selectedStocks)) {
+      Alert.alert('Already Selected', 'This stock is already in your selection');
+      return;
+    }
+
+    // Check max limit
+    if (selectedStocks.length >= MAX_STOCKS) {
+      Alert.alert('Maximum Reached', `You can select up to ${MAX_STOCKS} stocks`);
+      return;
+    }
+
+    setSelectedStocks([...selectedStocks, stock]);
+    setSearchQuery('');
+    setSearchResults([]);
+    setValidationError(null);
+  };
+
+
+// ============================================================================
+// 7. REPLACE handleStartGame FUNCTION
+// ============================================================================
+
+  const handleStartGame = async () => {
+    // Comprehensive validation before starting game
+    const validation = validateSelectedStocks(selectedStocks, MIN_STOCKS, MAX_STOCKS);
+
+    if (!validation.valid) {
+      Alert.alert('Validation Error', validation.error || 'Invalid stock selection');
+      logSuspiciousActivity('Game start validation failed', {
+        selectedStocks,
+        error: validation.error
+      });
+      return;
+    }
+
+    Alert.alert(
+      'Start Game',
+      `Start a new game with ${selectedStocks.length} stocks?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Start',
+          style: 'default',
+          onPress: async () => {
+            try {
+              setStarting(true);
+              await updateActivity();
+
+              // Sanitize stock symbols before sending to backend
+              const stockSymbols = sanitizeStockSymbols(selectedStocks);
+
+              // Final validation check
+              if (stockSymbols.length !== selectedStocks.length) {
+                throw new Error('Some stocks failed validation');
+              }
+
+              await container.startGameUseCase.execute({ stockSymbols });
+
+              Alert.alert('Success', 'Game started successfully!', [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    // Clear selection and navigate to active games
+                    setSelectedStocks([]);
+                    setSearchQuery('');
+                    setSearchResults([]);
+                    setValidationError(null);
+                    router.replace('/(tabs)/' as any);
+                  },
+                },
+              ]);
+            } catch (err) {
+              const errorMessage = err instanceof Error ? err.message : 'Failed to start game';
+              Alert.alert('Error', errorMessage);
+              logSuspiciousActivity('Game start failed', { error: errorMessage });
+            } finally {
+              setStarting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+
+// ============================================================================
+// 8. UPDATE TextInput IN RENDER (add maxLength prop)
+// ============================================================================
+
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search stocks by symbol or name..."
+            placeholderTextColor={theme.colors.text.hint}
+            value={searchQuery}
+            onChangeText={handleSearchInputChange}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            maxLength={SECURITY_CONFIG.SEARCH_QUERY_MAX_LENGTH}  // ADD THIS LINE
+          />
+
+
+// ============================================================================
+// 9. ADD VALIDATION ERROR DISPLAY (after Search Input, before Selected Stocks)
+// ============================================================================
+
+        {/* Validation Error Message */}
+        {validationError && (
+          <View style={styles.warningContainer}>
+            <Text style={styles.warningText}>{validationError}</Text>
+          </View>
+        )}
+
+
+// ============================================================================
+// 10. UPDATE FlatList keyExtractor (more secure unique key)
+// ============================================================================
+
+              keyExtractor={(item) => `${item.symbol}-${item.exchange}-${item.instrumentToken}`}
+
+
+// ============================================================================
+// 11. ADD WARNING STYLES (in StyleSheet.create)
+// ============================================================================
+
+  warningContainer: {
+    backgroundColor: theme.colors.warning.bg,
+    borderRadius: theme.spacing.borderRadius.base,
+    padding: theme.spacing.spacing.md,
+    marginBottom: theme.spacing.margin.betweenCards,
+    borderLeftWidth: theme.spacing.borderWidth.heavy,
+    borderLeftColor: theme.colors.warning.main,
+  },
+  warningText: {
+    color: theme.colors.warning.dark,
+    fontSize: theme.typography.fontSize.base,
+  },
+
+
+// ============================================================================
+// TESTING CHECKLIST
+// ============================================================================
+
+/*
+Test these attack vectors:
+
+1. SQL Injection:
+   - Search: ' OR '1'='1
+   - Search: '; DROP TABLE users--
+   - Expected: Validation error
+
+2. Script Injection:
+   - Search: <script>alert('xss')</script>
+   - Search: javascript:alert(1)
+   - Expected: Validation error
+
+3. Rate Limiting:
+   - Rapid searches (< 500ms apart)
+   - Rapid stock selections (< 300ms apart)
+   - Expected: "Please wait" message
+
+4. Data Manipulation:
+   - Tamper with stock object in console
+   - Select invalid stock data
+   - Expected: Validation error, logged
+
+5. Duplicate Detection:
+   - Select same stock twice
+   - Expected: "Already selected" alert
+
+6. Invalid Count:
+   - Try to start with 2 stocks
+   - Try to start with 6 stocks
+   - Expected: Validation error
+*/

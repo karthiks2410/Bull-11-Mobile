@@ -1,0 +1,191 @@
+=================================================================
+LOADING & ERROR HANDLING - COMPONENT STRUCTURE
+=================================================================
+
+┌─────────────────────────────────────────────────────────────┐
+│                     REUSABLE COMPONENTS                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  LoadingSpinner                                             │
+│  ├── Props: message, size, color                           │
+│  └── Usage: Full-screen loading during initial load        │
+│                                                              │
+│  ErrorDisplay                                               │
+│  ├── Props: title, message, onRetry, retryText            │
+│  └── Usage: Full-screen error with retry button           │
+│                                                              │
+│  ErrorBanner                                                │
+│  ├── Props: message, type, onDismiss                       │
+│  └── Usage: Inline error/warning/info banner              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                     ERROR HANDLER UTILITY                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ErrorHandler.parseError(err)                              │
+│  └── Returns: { type, title, message, shouldRetry }       │
+│                                                              │
+│  ErrorHandler.getShortMessage(err)                         │
+│  └── Returns: User-friendly error message string          │
+│                                                              │
+│  ErrorHandler.shouldLogout(err)                            │
+│  └── Returns: boolean (true for 401 errors)               │
+│                                                              │
+│  ErrorHandler.shouldRetry(err)                             │
+│  └── Returns: boolean (retry recommendation)              │
+│                                                              │
+│  Error Types Handled:                                      │
+│  ├── NETWORK (connection issues)                          │
+│  ├── UNAUTHORIZED (401 - session expired)                 │
+│  ├── FORBIDDEN (403 - access denied)                      │
+│  ├── NOT_FOUND (404 - resource not found)                 │
+│  ├── SERVER (500+ - server errors)                        │
+│  ├── VALIDATION (400 - invalid input)                     │
+│  ├── TIMEOUT (request timeout)                            │
+│  └── UNKNOWN (fallback)                                   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    SCREENS IMPLEMENTATION                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  TAB SCREENS:                                               │
+│  ├── index.tsx (Active Games)           ✅                 │
+│  ├── history.tsx (Game History)         ✅                 │
+│  └── admin.tsx (Admin Panel)            ✅                 │
+│                                                              │
+│  ADMIN SCREENS:                                             │
+│  ├── users.tsx (User List)              ✅                 │
+│  └── users/[id].tsx (User Detail)       ✅                 │
+│                                                              │
+│  AUTH SCREENS (Already Implemented):                        │
+│  ├── LoginScreen.tsx                    ✅                 │
+│  ├── RegisterScreen.tsx                 ✅                 │
+│  └── KiteSetupScreen.tsx                ✅                 │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    IMPLEMENTATION FLOW                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. INITIAL LOAD                                            │
+│     ├── Set loading = true                                 │
+│     ├── Clear error = null                                 │
+│     ├── Show LoadingSpinner                                │
+│     ├── Fetch data                                         │
+│     ├── On Success: Set data, loading = false             │
+│     └── On Error: Set error, show ErrorDisplay            │
+│                                                              │
+│  2. PULL-TO-REFRESH                                         │
+│     ├── Set refreshing = true                              │
+│     ├── Clear error = null                                 │
+│     ├── Show RefreshControl spinner                        │
+│     ├── Fetch data                                         │
+│     ├── On Success: Update data                           │
+│     ├── On Error: Show ErrorBanner (inline)               │
+│     └── Set refreshing = false                             │
+│                                                              │
+│  3. USER ACTION (e.g., Close Game)                          │
+│     ├── Show ActivityIndicator in button                   │
+│     ├── Execute action                                     │
+│     ├── On Success: Show success Alert, reload data       │
+│     ├── On Error: Show error Alert with details           │
+│     └── Hide ActivityIndicator                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                        ERROR STATES                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  NETWORK ERROR                                              │
+│  ├── Title: "Connection Error"                            │
+│  ├── Message: "Unable to connect to the server..."        │
+│  ├── Should Retry: YES                                     │
+│  └── Action: Show retry button, don't show Alert          │
+│                                                              │
+│  401 UNAUTHORIZED                                           │
+│  ├── Title: "Authentication Required"                     │
+│  ├── Message: "Your session has expired..."               │
+│  ├── Should Retry: NO                                      │
+│  └── Action: Trigger logout flow                          │
+│                                                              │
+│  403 FORBIDDEN                                              │
+│  ├── Title: "Access Denied"                               │
+│  ├── Message: "You do not have permission..."             │
+│  ├── Should Retry: NO                                      │
+│  └── Action: Show error, no retry                         │
+│                                                              │
+│  500+ SERVER ERROR                                          │
+│  ├── Title: "Server Error"                                │
+│  ├── Message: "Something went wrong on our end..."        │
+│  ├── Should Retry: YES                                     │
+│  └── Action: Show retry button                            │
+│                                                              │
+│  TIMEOUT                                                    │
+│  ├── Title: "Request Timeout"                             │
+│  ├── Message: "The request took too long..."              │
+│  ├── Should Retry: YES                                     │
+│  └── Action: Show retry button                            │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                        FILE STRUCTURE                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  src/presentation/components/common/                        │
+│  ├── LoadingSpinner.tsx          (New)                    │
+│  ├── ErrorDisplay.tsx            (New)                    │
+│  ├── ErrorBanner.tsx             (New)                    │
+│  ├── index.ts                    (Updated)                │
+│  ├── Button.tsx                  (Existing)               │
+│  ├── Input.tsx                   (Existing)               │
+│  ├── Card.tsx                    (Existing)               │
+│  └── ErrorText.tsx               (Existing)               │
+│                                                              │
+│  src/core/utils/                                            │
+│  └── errorHandler.ts             (New)                    │
+│                                                              │
+│  docs/                                                      │
+│  ├── LOADING_AND_ERROR_HANDLING.md    (New)              │
+│  ├── AGENT_10_COMPLETION_REPORT.md    (New)              │
+│  └── ERROR_HANDLING_STRUCTURE.txt     (New)              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+=================================================================
+                         QUICK REFERENCE
+=================================================================
+
+IMPORT COMPONENTS:
+import {
+  LoadingSpinner,
+  ErrorDisplay,
+  ErrorBanner
+} from '@/src/presentation/components/common';
+
+IMPORT ERROR HANDLER:
+import { ErrorHandler } from '@/src/core/utils/errorHandler';
+
+BASIC USAGE:
+// Loading
+if (loading) return <LoadingSpinner message="Loading..." />;
+
+// Error
+if (error) return <ErrorDisplay message={error} onRetry={load} />;
+
+// Inline Error
+{error && <ErrorBanner message={error} type="error" />}
+
+// Error Handling
+catch (err) {
+  const msg = ErrorHandler.getShortMessage(err);
+  setError(msg);
+}
+
+=================================================================

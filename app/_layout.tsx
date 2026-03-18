@@ -1,12 +1,19 @@
+/**
+ * Root Layout
+ * Main navigation structure for Bull-11 Admin App
+ * Protected by AuthGuard for security
+ */
+
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthGuard } from '@/src/presentation/guards';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  // Initial route should be auth/login
+  initialRouteName: 'auth',
 };
 
 export default function RootLayout() {
@@ -14,10 +21,17 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
+      <AuthGuard>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
+          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </AuthGuard>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
