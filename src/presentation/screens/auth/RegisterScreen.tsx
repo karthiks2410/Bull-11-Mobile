@@ -8,12 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  TextInput,
+  StyleSheet,
 } from 'react-native';
 import {
   Box,
   VStack,
   Text,
-  Input,
   Button,
   Checkbox,
   ScrollView,
@@ -178,25 +179,15 @@ export default function RegisterScreen() {
                       },
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                      <Input
+                      <TextInput
                         placeholder="Alexander Hamilton"
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        isDisabled={isLoading}
+                        editable={!isLoading}
                         autoCapitalize="words"
-                        bg="coolGray.100"
-                        borderColor="transparent"
-                        borderRadius="lg"
-                        py={3}
-                        px={4}
-                        fontSize="md"
-                        _focus={{
-                          bg: 'coolGray.100',
-                          borderColor: 'green.500',
-                          borderWidth: 2,
-                        }}
-                        isInvalid={!!errors.name}
+                        placeholderTextColor="#a1a1aa"
+                        style={[styles.input, errors.name && styles.inputError]}
                       />
                     )}
                   />
@@ -223,27 +214,17 @@ export default function RegisterScreen() {
                       },
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                      <Input
+                      <TextInput
                         placeholder="alex@example.com"
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        isDisabled={isLoading}
+                        editable={!isLoading}
                         keyboardType="email-address"
                         autoCapitalize="none"
                         autoComplete="email"
-                        bg="coolGray.100"
-                        borderColor="transparent"
-                        borderRadius="lg"
-                        py={3}
-                        px={4}
-                        fontSize="md"
-                        _focus={{
-                          bg: 'coolGray.100',
-                          borderColor: 'green.500',
-                          borderWidth: 2,
-                        }}
-                        isInvalid={!!errors.email}
+                        placeholderTextColor="#a1a1aa"
+                        style={[styles.input, errors.email && styles.inputError]}
                       />
                     )}
                   />
@@ -271,7 +252,7 @@ export default function RegisterScreen() {
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                       <VStack space={2}>
-                        <Input
+                        <TextInput
                           placeholder="Enter your password"
                           value={value}
                           onChangeText={(text) => {
@@ -279,22 +260,12 @@ export default function RegisterScreen() {
                             handlePasswordChange(text);
                           }}
                           onBlur={onBlur}
-                          isDisabled={isLoading}
-                          type="password"
+                          editable={!isLoading}
+                          secureTextEntry
                           autoCapitalize="none"
                           autoComplete="password"
-                          bg="coolGray.100"
-                          borderColor="transparent"
-                          borderRadius="lg"
-                          py={3}
-                          px={4}
-                          fontSize="md"
-                          _focus={{
-                            bg: 'coolGray.100',
-                            borderColor: 'green.500',
-                            borderWidth: 2,
-                          }}
-                          isInvalid={!!errors.password}
+                          placeholderTextColor="#a1a1aa"
+                          style={[styles.input, errors.password && styles.inputError]}
                         />
 
                         {/* Password Strength Indicator */}
@@ -376,26 +347,16 @@ export default function RegisterScreen() {
                         value === passwordValue || 'Passwords do not match',
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                      <Input
+                      <TextInput
                         placeholder="Re-enter your password"
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        isDisabled={isLoading}
-                        type="password"
+                        editable={!isLoading}
+                        secureTextEntry
                         autoCapitalize="none"
-                        bg="coolGray.100"
-                        borderColor="transparent"
-                        borderRadius="lg"
-                        py={3}
-                        px={4}
-                        fontSize="md"
-                        _focus={{
-                          bg: 'coolGray.100',
-                          borderColor: 'green.500',
-                          borderWidth: 2,
-                        }}
-                        isInvalid={!!errors.confirmPassword}
+                        placeholderTextColor="#a1a1aa"
+                        style={[styles.input, errors.confirmPassword && styles.inputError]}
                       />
                     )}
                   />
@@ -486,3 +447,19 @@ export default function RegisterScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+    backgroundColor: '#f4f4f5',
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#18181b',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  inputError: {
+    borderColor: '#ef4444',
+  },
+});

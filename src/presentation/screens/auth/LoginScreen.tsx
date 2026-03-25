@@ -4,13 +4,12 @@
  */
 
 import React, { useState } from 'react';
-import { Platform, Alert, KeyboardAvoidingView } from 'react-native';
+import { Platform, Alert, KeyboardAvoidingView, TextInput, StyleSheet } from 'react-native';
 import {
   Box,
   VStack,
   HStack,
   Text,
-  Input,
   Pressable,
   Icon,
   ScrollView,
@@ -167,7 +166,7 @@ export default function LoginScreen() {
                     },
                   }}
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
+                    <TextInput
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -175,27 +174,9 @@ export default function LoginScreen() {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoComplete="email"
-                      isDisabled={isLoading}
-                      bg="coolGray.100"
-                      borderWidth={0}
-                      borderRadius="lg"
-                      py={4}
-                      px={4}
-                      fontSize="md"
-                      placeholderTextColor="coolGray.400"
-                      _focus={{
-                        bg: 'coolGray.100',
-                        borderWidth: 0,
-                      }}
-                      InputRightElement={
-                        <Icon
-                          as={MaterialIcons}
-                          name="alternate-email"
-                          size="md"
-                          color="coolGray.400"
-                          mr={3}
-                        />
-                      }
+                      editable={!isLoading}
+                      placeholderTextColor="#a1a1aa"
+                      style={styles.input}
                     />
                   )}
                 />
@@ -231,35 +212,17 @@ export default function LoginScreen() {
                     required: 'Password is required',
                   }}
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
+                    <TextInput
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
                       placeholder="••••••••"
-                      type="password"
+                      secureTextEntry
                       autoCapitalize="none"
                       autoComplete="password"
-                      isDisabled={isLoading}
-                      bg="coolGray.100"
-                      borderWidth={0}
-                      borderRadius="lg"
-                      py={4}
-                      px={4}
-                      fontSize="md"
-                      placeholderTextColor="coolGray.400"
-                      _focus={{
-                        bg: 'coolGray.100',
-                        borderWidth: 0,
-                      }}
-                      InputRightElement={
-                        <Icon
-                          as={MaterialIcons}
-                          name="lock-outline"
-                          size="md"
-                          color="coolGray.400"
-                          mr={3}
-                        />
-                      }
+                      editable={!isLoading}
+                      placeholderTextColor="#a1a1aa"
+                      style={styles.input}
                     />
                   )}
                 />
@@ -373,3 +336,14 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+    backgroundColor: '#f4f4f5',
+    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#18181b',
+  },
+});

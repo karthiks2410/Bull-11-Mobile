@@ -375,7 +375,7 @@ export default function NewGameScreen() {
           <Text style={styles.stockName}>{item.name}</Text>
           <View style={styles.stockMeta}>
             <Text style={styles.stockExchange}>{item.exchange}</Text>
-            {item.lastPrice && (
+            {item.lastPrice != null && item.lastPrice > 0 && (
               <Text style={[
                 styles.stockPrice,
                 item.lastPrice < PENNY_STOCK_THRESHOLD && styles.stockPricePenny

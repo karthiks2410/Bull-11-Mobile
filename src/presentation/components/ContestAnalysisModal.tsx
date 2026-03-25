@@ -5,13 +5,12 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated } from 'react-native';
+import { Animated, Modal, SafeAreaView, StyleSheet } from 'react-native';
 import {
   Box,
   VStack,
   HStack,
   Text,
-  Modal,
   ScrollView,
   Pressable,
   Divider,
@@ -479,13 +478,13 @@ export const ContestAnalysisModal: React.FC<ContestAnalysisModalProps> = ({
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="full">
-      <Modal.Content maxWidth="100%" height="100%">
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <SafeAreaView style={rnStyles.container}>
         {/* Clean header — matches Home / Join Modal pattern */}
         <HStack
           justifyContent="space-between"
           alignItems="center"
-          pt={16}
+          pt={4}
           px={5}
           pb={4}
           bg={theme.colors.background.default}
@@ -524,7 +523,7 @@ export const ContestAnalysisModal: React.FC<ContestAnalysisModalProps> = ({
           {renderContent()}
         </Box>
 
-        {/* Confetti Cannon - positioned over entire Modal.Content */}
+        {/* Confetti Cannon - positioned over entire screen */}
         {visible && (
           <Box
             position="absolute"
@@ -547,7 +546,14 @@ export const ContestAnalysisModal: React.FC<ContestAnalysisModalProps> = ({
             />
           </Box>
         )}
-      </Modal.Content>
+      </SafeAreaView>
     </Modal>
   );
 };
+
+const rnStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+});
