@@ -22,6 +22,7 @@ export interface ContestCardProps {
   onWithdraw?: () => void;
   onViewDetails?: () => void;
   pulseAnim?: Animated.Value;
+  isUserJoined?: boolean;
 }
 
 export const ContestCard: React.FC<ContestCardProps> = ({
@@ -34,6 +35,7 @@ export const ContestCard: React.FC<ContestCardProps> = ({
   onWithdraw,
   onViewDetails,
   pulseAnim,
+  isUserJoined,
 }) => {
   // Helper to format currency
   const formatCurrency = (amount: number): string => {
@@ -143,22 +145,35 @@ export const ContestCard: React.FC<ContestCardProps> = ({
             ? getTimeRemaining(contest.startTime)
             : formatTime(contest.startTime)}
         </Text>
-        {onJoin && contest.status === ContestStatus.REGISTRATION_OPEN && (
-          <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              onJoin();
-            }}
-            bg="#1a1a1a"
-            borderRadius="full"
-            px={5}
-            py={2.5}
-            _pressed={{ opacity: 0.8 }}
-          >
-            <Text fontSize="sm" fontWeight="700" color="white">
-              Join Contest
-            </Text>
-          </Pressable>
+        {contest.status === ContestStatus.REGISTRATION_OPEN && (
+          isUserJoined ? (
+            <Box
+              bg="#e8f5e9"
+              borderRadius="full"
+              px={5}
+              py={2.5}
+            >
+              <Text fontSize="sm" fontWeight="700" color="#2e7d32">
+                Registered
+              </Text>
+            </Box>
+          ) : onJoin ? (
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                onJoin();
+              }}
+              bg="#1a1a1a"
+              borderRadius="full"
+              px={5}
+              py={2.5}
+              _pressed={{ opacity: 0.8 }}
+            >
+              <Text fontSize="sm" fontWeight="700" color="white">
+                Join Contest
+              </Text>
+            </Pressable>
+          ) : null
         )}
       </HStack>
     </Pressable>

@@ -4,7 +4,6 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { AppState } from 'react-native';
 import { container } from '@/src/core/di/container';
 import { User, UserRole } from '@/src/domain/entities/User';
 import { LoginRequest } from '@/src/domain/usecases/auth/LoginUseCase';
@@ -60,17 +59,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearInterval(sessionTimerRef.current);
       }
     };
-  }, []);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      if (nextAppState === 'active' && stateRef.current.user) {
-        await SessionManager.updateActivity();
-        await verifyAdminRoleOnResume();
-      }
-    });
-
-    return () => subscription.remove();
   }, []);
 
   const initializeSession = () => {

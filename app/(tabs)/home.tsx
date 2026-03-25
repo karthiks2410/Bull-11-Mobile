@@ -30,6 +30,7 @@ export default function HomeScreen() {
 
   const [contests, setContests] = useState<Contest[]>([]);
   const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
+  const [joinedContestIds, setJoinedContestIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,10 +82,14 @@ export default function HomeScreen() {
 
       // Fetch upcoming and live contests separately to avoid
       // PgBouncer prepared statement issue with findAll()
-      const [upcoming, live] = await Promise.all([
+      const [upcoming, live, myContests] = await Promise.all([
         container.contestRepository.getUpcomingContests(),
         container.contestRepository.getLiveContests(),
+        container.contestRepository.getMyContests(),
       ]);
+
+      // Build set of contest IDs the user has already joined
+      setJoinedContestIds(new Set(myContests.map(entry => entry.contestId)));
 
       // Merge and deduplicate by id
       const contestMap = new Map<string, Contest>();
@@ -208,6 +213,7 @@ export default function HomeScreen() {
     <ContestCard
       contest={item}
       variant="browse"
+      isUserJoined={joinedContestIds.has(item.id)}
       onJoin={() => handleJoinContest(item)}
       pulseAnim={item.status === ContestStatus.LIVE ? pulseAnim : undefined}
     />

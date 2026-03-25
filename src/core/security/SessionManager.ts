@@ -12,7 +12,7 @@ interface SessionData {
 }
 
 export class SessionManager {
-  private static readonly INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+  private static readonly INACTIVITY_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly SESSION_KEY = 'session_data';
   private static appStateSubscription: any;
   private static inactivityTimer: NodeJS.Timeout | null = null;
@@ -127,15 +127,11 @@ export class SessionManager {
       'change',
       async (nextAppState: AppStateStatus) => {
         if (nextAppState === 'active') {
-          // App came to foreground - check session validity
-          const isValid = await this.isSessionValid();
-          if (!isValid && this.onSessionExpired) {
-            this.onSessionExpired();
-          } else if (isValid) {
-            await this.updateActivity();
-          }
+          // App came to foreground - just refresh activity
+          // Session expiry is handled by the inactivity timer (resetInactivityTimer)
+          // Checking here caused false logouts on browser tab switches
+          await this.updateActivity();
         } else if (nextAppState === 'background') {
-          // App went to background - record time
           await this.updateActivity();
         }
       }
