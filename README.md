@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎯 Bull-11 Mobile
+# Bull-11 Mobile
 
 ### Stock Market Fantasy Game - React Native Mobile App
 
@@ -9,343 +9,311 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)]()
 
-**[Backend Repository](https://github.com/karthiks2410/Bull-11)** • **[Architecture Docs](./docs/ARCHITECTURE.md)**
+**[Backend Repository](https://github.com/karthiks2410/Bull-11)** · **[Architecture Docs](./docs/ARCHITECTURE.md)**
 
 </div>
 
 ---
 
-## 📋 Overview
+## Overview
 
-Bull-11 is a production-ready mobile application for participating in real-time stock market fantasy games featuring Indian stocks (NSE/BSE). Built with **Clean Architecture** and **SOLID principles**, it offers live market tracking, gaming analytics, and comprehensive security features.
+Bull-11 is a **Dream11-style fantasy game for the stock market**. Players join contests, pick stocks, and compete based on real-time NSE/BSE price movements. Built with **Clean Architecture** on React Native (Expo) with a Spring Boot backend.
 
-### ✨ Key Highlights
+### Key Highlights
 
-- 🔐 **Secure Authentication** - JWT-based auth with rate limiting and session management
-- 📊 **Live Market Data** - Real-time NSE/BSE stock prices via Zerodha Kite Connect
-- 🎮 **Gaming UI** - Rank system, achievement badges, performance insights
-- 📈 **Visual Analytics** - Stock comparison bars, color-coded profit/loss ranges
-- 👥 **Role-Based Access** - User and Admin roles with dedicated features
-- 🏗️ **Clean Architecture** - Domain-driven design with 15 organized use cases
-
----
-
-## 🚀 Features
-
-### For All Users
-- ✅ **User Registration** - Self-service signup with password strength validation
-- ✅ **Game Creation** - Select 3-5 stocks from NSE/BSE with smart search
-- ✅ **Live Tracking** - Auto-refresh every 30 seconds with pause/resume
-- ✅ **Gaming Dashboard** - Rank badges (🏆🥈🥉), performance insights, momentum indicators
-- ✅ **Visual Analytics** - Stock comparison bars, color-coded P&L, trend arrows
-- ✅ **Game History** - Completed games with final performance metrics
-- ✅ **Profile Management** - View stats, manage account, secure logout
-
-### For Administrators
-- 🔧 **User Management** - View all users, search, detailed profiles
-- 🔧 **Kite Integration** - OAuth setup for Zerodha market data
-- 🔧 **System Monitoring** - Analytics, audit logs, system health
-
-### Security Features
-- 🔒 **JWT Authentication** - 24-hour token expiry with auto-refresh
-- 🔒 **Rate Limiting** - Max 5 login attempts per 15 minutes
-- 🔒 **Session Management** - 30-minute inactivity timeout
-- 🔒 **Role Validation** - Privilege escalation detection
-- 🔒 **Audit Logging** - Track all admin actions
+- **Contests** - Join upcoming contests, pick stocks, compete on live leaderboards
+- **Real-Time Prices** - WebSocket (STOMP) for live price ticks during contests
+- **Practice Games** - Solo stock-picking games with live market tracking
+- **Secure Auth** - JWT-based authentication with session management
+- **Clean Architecture** - Domain-driven design with repository pattern and DI
 
 ---
 
-## 🛠️ Tech Stack
+## Features
+
+### Contests (Primary Feature)
+
+| Feature | Description |
+|---------|-------------|
+| **Browse & Join** | Discover upcoming contests, view entry fee / prize pool, join with one tap |
+| **Team Builder** | Search NSE/BSE instruments, pick stocks for your portfolio |
+| **Live Leaderboard** | Real-time rank updates via WebSocket during contest hours |
+| **My Contests** | Sub-tabs: Upcoming (edit team / withdraw) · Live (rank + return %) · Past (analysis) |
+| **Contest Analysis** | Post-contest breakdown: stock-by-stock open/close/change, final leaderboard with prize distribution |
+| **Admin Controls** | Create contests, force open registration / start / end, cancel, delete |
+
+### Practice Games
+
+- Create solo games with 3-5 NSE/BSE stocks
+- Live price tracking with auto-refresh and WebSocket fallback
+- Performance insights, rank badges, trend indicators
+- Game history with final metrics
+
+### Authentication & Security
+
+- JWT tokens (24h expiry) stored in AsyncStorage
+- Auto-attached via Axios interceptor
+- 24-hour inactivity timeout with activity tracking
+- Rate limiting (5 login attempts / 15 min)
+- Role-based access: USER and ADMIN routes
+
+---
+
+## Tech Stack
 
 ### Frontend
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React Native** | 0.81.5 | Cross-platform mobile framework |
-| **Expo** | SDK 54 | Development platform & tooling |
-| **TypeScript** | 5.9.2 | Type-safe development |
-| **Expo Router** | Latest | File-based navigation |
-| **Axios** | Latest | HTTP client with interceptors |
-| **React Hook Form** | Latest | Form validation & management |
-| **react-native-logs** | Latest | Structured logging |
 
-### Backend Integration
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Spring Boot** | 3.2.5 | RESTful API server |
-| **PostgreSQL** | 16 | Primary database |
-| **Redis** | 7 | Caching & sessions |
-| **Zerodha Kite** | Latest | Live stock market data |
-| **JWT** | - | Authentication tokens |
+| Technology | Purpose |
+|------------|---------|
+| **React Native** 0.81.5 | Cross-platform mobile framework |
+| **Expo** SDK 54 | Development platform & OTA updates |
+| **TypeScript** 5.9.2 | Type safety |
+| **Expo Router** | File-based navigation |
+| **NativeBase** | UI component library |
+| **@stomp/stompjs** | WebSocket client for live data |
+| **Axios** | HTTP client with auth interceptor |
+| **React Native Reanimated** | Animations (card entry, price pulse) |
 
-### Architecture Patterns
-- 🏗️ **Clean Architecture** - Domain → Data → Presentation → Core
-- 🎯 **SOLID Principles** - Maintainable, testable, scalable code
-- 📦 **Repository Pattern** - Abstracted data access layer
-- 💉 **Dependency Injection** - Centralized service container
-- 🔄 **Use Case Pattern** - 15 organized business operations
+### Backend (separate repo)
+
+| Technology | Purpose |
+|------------|---------|
+| **Spring Boot** 3.2.5 / Java 21 | REST API + WebSocket server |
+| **PostgreSQL** 16 | Primary database |
+| **Redis** 7 | Caching & sessions |
+| **Zerodha Kite Connect** | Live NSE/BSE market data |
+
+### Architecture
+
+- **Clean Architecture** - Domain → Data → Presentation → Core
+- **Repository Pattern** - Interfaces in domain, implementations in data
+- **Use Case Pattern** - 20+ organized business operations
+- **Dependency Injection** - Centralized container (`src/core/di/container.ts`)
+- **WebSocket** - STOMP over SockJS for real-time contest leaderboards
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 bull-11-app/
-├── 📱 app/                           # Expo Router screens
-│   ├── auth/                         # Authentication flow
-│   │   ├── login.tsx                 # Login screen
-│   │   └── register.tsx              # Registration screen
-│   ├── (tabs)/                       # Main app tabs (protected)
-│   │   ├── index.tsx                 # Active games list with live data
-│   │   ├── new-game.tsx              # Create new game
-│   │   ├── history.tsx               # Game history & analytics
+├── app/                              # Expo Router screens
+│   ├── auth/
+│   │   ├── login.tsx                 # Login
+│   │   └── register.tsx              # Registration
+│   ├── (tabs)/
+│   │   ├── home.tsx                  # Contest discovery (upcoming/live)
+│   │   ├── contests.tsx              # My Contests (upcoming/live/past)
+│   │   ├── games.tsx                 # Practice games with live prices
 │   │   ├── profile.tsx               # User profile & stats
-│   │   └── admin.tsx                 # Admin panel (ADMIN only)
-│   └── (admin)/                      # Admin management
-│       ├── dashboard.tsx             # Admin dashboard
+│   │   └── _layout.tsx               # Tab bar layout
+│   ├── contest/
+│   │   └── [id]/
+│   │       ├── team-builder.tsx      # Stock selection for contest
+│   │       └── leaderboard.tsx       # Full leaderboard page
+│   └── (admin)/
+│       ├── contests.tsx              # Admin contest management
 │       ├── kite-setup.tsx            # Kite OAuth integration
-│       ├── users.tsx                 # User management
-│       └── users/[id].tsx            # User details
+│       └── users.tsx                 # User management
 │
-├── 🏗️ src/
+├── src/
 │   ├── domain/                       # Business logic layer
-│   │   ├── entities/                 # Domain models (User, Game, Stock)
-│   │   ├── repositories/             # Repository interfaces
-│   │   └── usecases/                 # 15 business use cases
-│   │       ├── auth/                 # Login, Register, Logout, GetUser
-│   │       ├── game/                 # Start, Close, Cancel, History, Live
-│   │       ├── stock/                # Search stocks
-│   │       └── admin/                # User mgmt, Kite setup
+│   │   ├── entities/
+│   │   │   ├── Contest.ts            # Contest, ContestEntry, LeaderboardEntry
+│   │   │   ├── Game.ts               # Practice game entities
+│   │   │   ├── User.ts               # User entity
+│   │   │   └── Stock.ts              # Stock entity
+│   │   ├── repositories/
+│   │   │   ├── ContestRepository.ts  # Contest operations interface
+│   │   │   ├── GameRepository.ts     # Game operations interface
+│   │   │   └── ...
+│   │   └── usecases/
+│   │       ├── contest/              # Join, Submit/Update Team, Withdraw, Leaderboard, etc.
+│   │       ├── game/                 # Start, Close, Cancel, History
+│   │       ├── stock/                # Search instruments
+│   │       └── auth/                 # Login, Register, Logout
 │   │
 │   ├── data/                         # Implementation layer
-│   │   ├── api/                      # API client & DTOs
-│   │   ├── storage/                  # AsyncStorage wrapper
-│   │   ├── mappers/                  # DTO ↔ Entity converters
-│   │   └── repositories/             # Repository implementations
+│   │   ├── api/
+│   │   │   ├── ApiClient.ts          # Axios instance with JWT interceptor
+│   │   │   └── dto.ts                # Request/Response DTOs
+│   │   ├── repositories/
+│   │   │   ├── ContestRepositoryImpl.ts  # Contest API calls + DTO mapping
+│   │   │   └── ...
+│   │   └── websocket/
+│   │       ├── ContestWebSocketClient.ts # STOMP client for contests
+│   │       └── ContestWebSocketTypes.ts  # WebSocket message types
 │   │
-│   ├── presentation/                 # UI layer
-│   │   ├── screens/                  # Screen components
-│   │   ├── components/               # Reusable UI components
-│   │   │   ├── common/               # Buttons, Cards, Inputs, Spinners
-│   │   │   ├── GameDetailsModal.tsx  # Gaming dashboard
-│   │   │   ├── StockComparisonBar.tsx # Visual portfolio composition
-│   │   │   └── InsightBanner.tsx     # Performance insights
-│   │   ├── hooks/                    # Custom React hooks
-│   │   └── guards/                   # Auth & Admin route guards
+│   ├── presentation/
+│   │   ├── components/
+│   │   │   ├── ContestCard.tsx        # Card variants: browse, upcoming, live, past
+│   │   │   ├── ContestDetailsModal.tsx # Live contest detail view
+│   │   │   ├── ContestAnalysisModal.tsx # Post-contest results & analysis
+│   │   │   ├── GameDetailsModal.tsx   # Practice game dashboard
+│   │   │   ├── SubTabNavigation.tsx   # Reusable sub-tab component
+│   │   │   ├── ConfirmDialog.tsx      # Confirmation dialog with loading state
+│   │   │   └── common/               # ErrorDisplay, ErrorBanner, Card, etc.
+│   │   └── hooks/
+│   │       ├── useAuth.ts            # Auth state management
+│   │       ├── useContestWebSocket.ts # WebSocket hook for live contest data
+│   │       └── useStockWebSocket.ts  # WebSocket hook for practice games
 │   │
-│   └── core/                         # Infrastructure
-│       ├── constants/                # API endpoints & config
-│       ├── di/                       # Dependency injection container
-│       ├── security/                 # Security modules (6 total)
-│       ├── logging/                  # Structured logging setup
-│       ├── theme/                    # Colors, typography, spacing
-│       └── utils/                    # Game insights, error handlers
+│   └── core/
+│       ├── constants/app.constants.ts # API endpoints
+│       ├── di/container.ts           # Dependency injection setup
+│       ├── security/SessionManager.ts # Inactivity timeout
+│       └── theme/                    # Colors, typography, spacing
 │
-├── 📚 docs/                          # Documentation
-│   ├── ARCHITECTURE.md               # Detailed architecture guide
-│   └── archive/                      # Historical implementation docs
-│
-├── 🧪 tests/                         # Test suites
-├── 🖼️ assets/                        # Images, fonts, icons
-├── 📄 .env.example                   # Environment template
-└── 📖 README.md                      # This file
+├── .env                              # API URLs (production)
+└── README.md
 ```
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
-- ✅ Node.js 18+ and npm
-- ✅ iOS Simulator (Mac) or Android Emulator
-- ✅ Expo CLI: `npm install -g expo-cli`
-- ✅ Backend API running on port 8080
+
+- Node.js 18+
+- Expo CLI: `npm install -g expo-cli`
+- Backend API running ([Bull-11 Backend](https://github.com/karthiks2410/Bull-11))
 
 ### Installation
 
 ```bash
-# 1. Clone the repository
+# Clone
 git clone https://github.com/karthiks2410/Bull-11-Mobile.git
 cd Bull-11-Mobile
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Configure environment
+# Configure environment
 cp .env.example .env
 # Edit .env with your backend URL
 
-# 4. Start the app
-npm start           # Start with QR code
+# Start
+npm run web         # Web browser (localhost:5050)
+npm start           # Expo dev server with QR code
 npm run ios         # iOS simulator
 npm run android     # Android emulator
-npm run web         # Web browser (port 5050)
 ```
 
-### Environment Configuration
-
-Create a `.env` file in the root directory:
+### Environment Variables
 
 ```env
-# Backend API
-EXPO_PUBLIC_API_BASE_URL=http://localhost:8080
-
-# WebSocket (future feature)
-EXPO_PUBLIC_WS_URL=ws://localhost:8080/ws
-
-# Development server port
+EXPO_PUBLIC_API_BASE_URL=https://bull11-backend.onrender.com
+EXPO_PUBLIC_WS_URL=wss://bull11-backend.onrender.com/ws
 PORT=5050
 ```
 
-### First Run
-
-1. **Register** - Create a new account (USER role)
-2. **Login** - Access your dashboard
-3. **Create Game** - Select 3-5 stocks
-4. **Track Performance** - Watch live market data
-
-> **Note**: Admin access requires manual backend setup. See [Admin Setup](#admin-setup) below.
+For local development, use `http://localhost:8080` and `ws://localhost:8080/ws`.
 
 ---
 
-## 📱 App Screenshots & Features
+## User Flows
 
-### Gaming UI Enhancements
-- **Live Price Updates** - Auto-refresh every 30 seconds with manual refresh option
-- **Smart Color Coding** - Profit/loss ranges (0-2%, 2-5%, 5%+) in graduated colors
-- **Rank System** - S/A/B/C/D grades with Gold/Green/Blue/Orange/Red colors
-- **Achievement Badges** - 💎 Diamond Hands (+5%), 📄 Paper Hands (-5%)
-- **Performance Insights** - Auto-generated messages ("🔥 Strong momentum!", "📉 Portfolio struggling")
-- **Stock Comparison Bars** - Visual portfolio composition with color-coded segments
-- **Trend Indicators** - ▲▲ (strong up), ▲ (up), ─ (flat), ▼ (down), ▼▼ (strong down)
+### Contest Flow
 
----
-
-## 🎮 User Flows
-
-### Registration Flow
 ```
-1. Open app → Login screen
-2. Click "Sign Up" → Registration form
-3. Enter: Full Name, Email, Password (8+ chars with complexity)
-4. Password validated → Account created (USER role)
-5. Auto-login → Navigate to Games tab
+1. Home tab → Browse upcoming contests
+2. Tap "Join Contest" → Enter team name
+3. Team Builder → Search & pick stocks (NSE/BSE)
+4. Submit team → Contest appears in My Contests (Upcoming)
+5. Edit team or withdraw before contest starts
+6. Contest goes live → Real-time leaderboard via WebSocket
+7. Contest ends → View analysis (stock breakdown, final ranks, prizes)
 ```
 
-### Game Creation Flow
-```
-1. Navigate to "New Game" tab
-2. Search stocks by symbol (e.g., "INFY", "TCS", "RELIANCE")
-3. Select 3-5 stocks from results
-4. Click "Start Game" → Opening prices recorded
-5. Game appears in "Games" tab with live tracking
-6. Monitor performance → Close when ready
-```
+### Practice Game Flow
 
-### Admin Setup
-To create an ADMIN user, run this SQL on your backend database:
-
-```sql
-UPDATE users SET role = 'ADMIN' WHERE email = 'admin@example.com';
+```
+1. Games tab → Create new game
+2. Search & select 3-5 stocks
+3. Start game → Opening prices recorded
+4. Live tracking with WebSocket price updates
+5. Close game when ready → Final performance calculated
 ```
 
-Admin features unlocked:
-- 👥 User Management - View all users, search, details
-- 🔧 Kite OAuth Setup - Integrate Zerodha market data
-- 📊 System Analytics - Monitor platform health
+### Admin Flow
 
----
-
-## 🔒 Security Architecture
-
-### Authentication & Authorization
-- **JWT Tokens** - 24-hour expiry with automatic validation
-- **Password Requirements** - Min 8 chars, uppercase, lowercase, number, special char
-- **Rate Limiting** - Max 5 login attempts per 15 minutes, 30-minute lockout
-- **Session Management** - 30-minute inactivity timeout with warning at 5 minutes
-- **Role-Based Access** - USER vs ADMIN routes with privilege escalation detection
-
-### Security Modules
-| Module | Purpose |
-|--------|---------|
-| `TokenService` | JWT validation & expiry checking |
-| `PasswordValidator` | Strength scoring (Weak/Medium/Strong) |
-| `RateLimiter` | Login attempt tracking & lockout |
-| `SessionManager` | Inactivity detection & auto-logout |
-| `RoleValidator` | Privilege escalation prevention |
-| `AuditLogger` | Admin action tracking |
-
----
-
-## 🧪 Development
-
-### Running Tests
-```bash
-npm test              # Run all tests
-npm run test:watch    # Watch mode
-npm run test:coverage # Coverage report
 ```
-
-### Code Quality
-```bash
-npm run lint          # Check code style
-npm run lint:fix      # Auto-fix issues
-npm run typecheck     # TypeScript validation
-```
-
-### Building for Production
-```bash
-# Install EAS CLI
-npm install -g eas-cli
-
-# Configure EAS
-eas login
-eas build:configure
-
-# Build for platforms
-eas build --platform ios      # iOS build
-eas build --platform android  # Android build
-eas build --platform all      # Both platforms
+1. Login as ADMIN user
+2. Admin tab → Create contests (name, dates, entry fee, prize pool)
+3. Force open registration / start / end contests
+4. Kite Setup → OAuth for Zerodha market data
+5. User Management → View/search all users
 ```
 
 ---
 
-## 📚 Documentation
+## Time Convention
 
-- **[Architecture Guide](./docs/ARCHITECTURE.md)** - Detailed system architecture, patterns, and decisions
-- **[API Integration](./docs/ARCHITECTURE.md#api-integration)** - Backend API endpoints and contracts
-- **[Security Implementation](./docs/ARCHITECTURE.md#security)** - Security features and best practices
-- **[Component Library](./src/presentation/components/)** - Reusable UI components
+All times follow a UTC pipeline:
 
----
-
-## 🤝 Contributing
-
-This is a proprietary project. For contributions or issues:
-1. Review the [Architecture Guide](./docs/ARCHITECTURE.md)
-2. Follow existing code patterns and Clean Architecture principles
-3. Ensure all tests pass before submitting
-4. Contact the development team for access
+1. **Admin creates contest** with IST times
+2. **Backend converts** IST → UTC and stores in PostgreSQL
+3. **API returns** `LocalDateTime` (no timezone suffix)
+4. **Frontend appends** `'Z'` to parse as UTC (`parseUtcDate()` in `ContestRepositoryImpl.ts`)
+5. **Display** uses `toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })` for IST
 
 ---
 
-## 🔗 Related Projects
+## WebSocket Integration
 
-- **[Bull-11 Backend](https://github.com/karthiks2410/Bull-11)** - Spring Boot API server
-  - Tech: Spring Boot 3.2.5, Java 21, PostgreSQL 16, Redis 7
-  - Features: RESTful API, JWT auth, Kite integration, WebSocket support
+Real-time updates use **STOMP over SockJS**:
 
----
+| Topic | Purpose |
+|-------|---------|
+| `/topic/contest/{id}/leaderboard` | Live leaderboard updates during contests |
+| `/topic/contest/{id}/prices` | Live stock price ticks |
 
-## 📞 Support
-
-For technical support or questions:
-1. Check this README and [Architecture Guide](./docs/ARCHITECTURE.md)
-2. Review existing documentation in `docs/`
-3. Contact the development team
+- `ContestWebSocketClient.ts` manages connection lifecycle
+- Auto-reconnect with fallback to REST polling (15s interval)
+- Visual connection indicator on live contest cards
 
 ---
 
-## 📄 License
+## API Endpoints (Key)
+
+### Contests
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/contests` | List all contests |
+| GET | `/api/contests/upcoming` | Upcoming contests |
+| GET | `/api/contests/live` | Live contests |
+| GET | `/api/contests/{id}` | Contest details |
+| POST | `/api/contests/{id}/join` | Join a contest |
+| POST | `/api/contests/{id}/team` | Submit team |
+| PATCH | `/api/contests/{id}/team` | Update team |
+| DELETE | `/api/contests/{id}/withdraw` | Withdraw |
+| GET | `/api/contests/{id}/leaderboard` | Leaderboard |
+| GET | `/api/contests/my-contests` | User's contests |
+
+### Instruments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/kite/instruments/search?q=INFY` | Search instruments |
+| GET | `/api/kite/instruments/search-with-price?q=INFY` | Search with live price |
+| GET | `/api/kite/instruments/token?symbol=INFY&exchange=NSE` | Get instrument token |
+
+### Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Current user |
+
+---
+
+## Related Projects
+
+- **[Bull-11 Backend](https://github.com/karthiks2410/Bull-11)** - Spring Boot 3.2.5, Java 21, PostgreSQL 16, Redis 7, Zerodha Kite Connect, WebSocket (STOMP)
+
+---
+
+## License
 
 Proprietary - All rights reserved
 
@@ -353,9 +321,8 @@ Proprietary - All rights reserved
 
 <div align="center">
 
-**Built with ❤️ using React Native, Clean Architecture, and modern best practices**
+**Built with React Native, Clean Architecture, and real-time market data**
 
-[⬆ Back to Top](#-bull-11-mobile)
+[Back to Top](#bull-11-mobile)
 
 </div>
-
