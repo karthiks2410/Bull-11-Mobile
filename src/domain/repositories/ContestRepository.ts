@@ -42,6 +42,11 @@ export interface ContestRepository {
   submitTeam(contestId: string, stockSymbols: string[]): Promise<void>;
 
   /**
+   * Update an existing team with 5 stock symbols
+   */
+  updateTeam(contestId: string, stockSymbols: string[]): Promise<void>;
+
+  /**
    * Get user's team for a contest
    */
   getMyTeam(contestId: string): Promise<ContestEntry>;

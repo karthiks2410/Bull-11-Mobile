@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { theme } from '@/src/core/theme';
 
 interface ConfirmDialogProps {
@@ -16,6 +16,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
   confirmColor?: string;
+  isLoading?: boolean;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -27,13 +28,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
   confirmColor = theme.colors.success.main,
+  isLoading = false,
 }) => {
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onCancel}
+      onRequestClose={() => { if (!isLoading) onCancel(); }}
     >
       <View style={styles.overlay}>
         <View style={styles.dialog}>
@@ -42,17 +44,23 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[styles.button, styles.cancelButton, isLoading && { opacity: 0.5 }]}
               onPress={onCancel}
+              disabled={isLoading}
             >
               <Text style={styles.cancelButtonText}>{cancelText}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.button, styles.confirmButton, { backgroundColor: confirmColor }]}
+              style={[styles.button, styles.confirmButton, { backgroundColor: confirmColor }, isLoading && { opacity: 0.5 }]}
               onPress={onConfirm}
+              disabled={isLoading}
             >
-              <Text style={styles.confirmButtonText}>{confirmText}</Text>
+              {isLoading ? (
+                <ActivityIndicator size="small" color={theme.colors.text.inverse} />
+              ) : (
+                <Text style={styles.confirmButtonText}>{confirmText}</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>

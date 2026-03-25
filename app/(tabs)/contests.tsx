@@ -9,6 +9,9 @@ import {
   RefreshControl,
   ActivityIndicator,
   Animated,
+  Alert,
+  View,
+  TouchableOpacity,
 } from 'react-native';
 import { Box, Text, VStack, HStack, Center } from 'native-base';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -47,7 +50,8 @@ export default function ContestsScreen() {
   const [filteredEntries, setFilteredEntries] = useState<ContestEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Auto-refresh interval for live contests (15 seconds) — fallback when WebSocket not connected
   const autoRefreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,6 +64,7 @@ export default function ContestsScreen() {
   // Withdraw confirmation dialog
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
   const [entryToWithdraw, setEntryToWithdraw] = useState<string | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   // Contest details modal state
   const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
@@ -214,7 +219,7 @@ export default function ContestsScreen() {
       if (!isSilent) {
         setLoading(true);
       }
-      setError(null);
+      setLoadError(null);
       await updateActivity();
 
       // Get user's contest entries
@@ -233,7 +238,7 @@ export default function ContestsScreen() {
       setContests(contestMap);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load contests';
-      setError(errorMessage);
+      setLoadError(errorMessage);
     } finally {
       if (!isSilent) {
         setLoading(false);
@@ -285,27 +290,24 @@ export default function ContestsScreen() {
   const confirmWithdraw = async () => {
     if (!entryToWithdraw) return;
 
-    setShowWithdrawConfirm(false);
+    setWithdrawing(true);
     try {
       await updateActivity();
-
-      // Find the entry to get contestId
       const entry = entries.find(e => e.id === entryToWithdraw);
       if (!entry) {
         throw new Error('Contest entry not found');
       }
-
-      // Withdraw from contest using contestId (not entryId)
       await container.withdrawFromContestUseCase.execute({
         contestId: entry.contestId,
       });
-
-      // Reload contests after successful withdrawal
+      setShowWithdrawConfirm(false);
       await loadMyContests();
     } catch (err) {
+      setShowWithdrawConfirm(false);
       const errorMessage = err instanceof Error ? err.message : 'Failed to withdraw';
-      setError(errorMessage);
+      Alert.alert('Withdraw Failed', errorMessage);
     } finally {
+      setWithdrawing(false);
       setEntryToWithdraw(null);
     }
   };
@@ -403,11 +405,11 @@ export default function ContestsScreen() {
     );
   }
 
-  if (error && !refreshing) {
+  if (loadError && !refreshing) {
     return (
       <ErrorDisplay
         title="Failed to Load Contests"
-        message={error}
+        message={loadError}
         onRetry={loadMyContests}
       />
     );
@@ -451,6 +453,16 @@ export default function ContestsScreen() {
         activeTab={activeSubTab}
         onTabChange={(value) => setActiveSubTab(value as SubTabType)}
       />
+
+      {/* Action Error Banner */}
+      {actionError && (
+        <View style={{ backgroundColor: '#fee2e2', padding: 12, marginHorizontal: 16, marginTop: 8, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: '#dc2626', flex: 1 }}>{actionError}</Text>
+          <TouchableOpacity onPress={() => setActionError(null)}>
+            <Text style={{ color: '#dc2626', fontWeight: 'bold', paddingLeft: 8 }}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Contest Entries List */}
       <FlatList
@@ -501,6 +513,7 @@ export default function ContestsScreen() {
           setEntryToWithdraw(null);
         }}
         confirmColor="#b3272a"
+        isLoading={withdrawing}
       />
 
       {/* Live Contest Details Modal */}

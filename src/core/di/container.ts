@@ -44,6 +44,7 @@ import { ListContestsUseCase } from '@/src/domain/usecases/contest/ListContestsU
 import { GetContestUseCase } from '@/src/domain/usecases/contest/GetContestUseCase';
 import { JoinContestUseCase } from '@/src/domain/usecases/contest/JoinContestUseCase';
 import { SubmitTeamUseCase } from '@/src/domain/usecases/contest/SubmitTeamUseCase';
+import { UpdateTeamUseCase } from '@/src/domain/usecases/contest/UpdateTeamUseCase';
 import { GetMyTeamUseCase } from '@/src/domain/usecases/contest/GetMyTeamUseCase';
 import { WithdrawFromContestUseCase } from '@/src/domain/usecases/contest/WithdrawFromContestUseCase';
 import { GetLeaderboardUseCase } from '@/src/domain/usecases/contest/GetLeaderboardUseCase';
@@ -98,6 +99,7 @@ class DIContainer {
   readonly getContestUseCase: GetContestUseCase;
   readonly joinContestUseCase: JoinContestUseCase;
   readonly submitTeamUseCase: SubmitTeamUseCase;
+  readonly updateTeamUseCase: UpdateTeamUseCase;
   readonly getMyTeamUseCase: GetMyTeamUseCase;
   readonly withdrawFromContestUseCase: WithdrawFromContestUseCase;
   readonly getLeaderboardUseCase: GetLeaderboardUseCase;
@@ -146,6 +148,7 @@ class DIContainer {
     this.getContestUseCase = new GetContestUseCase(this.contestRepository);
     this.joinContestUseCase = new JoinContestUseCase(this.contestRepository);
     this.submitTeamUseCase = new SubmitTeamUseCase(this.contestRepository);
+    this.updateTeamUseCase = new UpdateTeamUseCase(this.contestRepository);
     this.getMyTeamUseCase = new GetMyTeamUseCase(this.contestRepository);
     this.withdrawFromContestUseCase = new WithdrawFromContestUseCase(this.contestRepository);
     this.getLeaderboardUseCase = new GetLeaderboardUseCase(this.contestRepository);

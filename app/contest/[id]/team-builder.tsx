@@ -190,10 +190,17 @@ export default function TeamBuilderScreen() {
 
       const stockSymbols = selectedStocks.map((s) => s.symbol.trim());
 
-      await container.submitTeamUseCase.execute({
-        contestId: contestId as string,
-        stockSymbols,
-      });
+      if (isEditing) {
+        await container.updateTeamUseCase.execute({
+          contestId: contestId as string,
+          stockSymbols,
+        });
+      } else {
+        await container.submitTeamUseCase.execute({
+          contestId: contestId as string,
+          stockSymbols,
+        });
+      }
 
       // Navigate back to MY CONTESTS
       router.replace('/(tabs)/contests' as any);

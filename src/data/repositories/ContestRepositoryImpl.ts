@@ -81,6 +81,18 @@ export class ContestRepositoryImpl implements ContestRepository {
     );
   }
 
+  async updateTeam(contestId: string, stockSymbols: string[]): Promise<void> {
+    const stocks: StockPickDTO[] = stockSymbols.map(symbol => ({
+      symbol,
+      exchange: 'NSE'
+    }));
+    const request: TeamRequestDTO = { stocks, exchange: 'NSE' };
+    await this.apiClient.patch<TeamResponseDTO>(
+      API_ENDPOINTS.CONTESTS.UPDATE_TEAM(contestId),
+      request
+    );
+  }
+
   async getMyTeam(contestId: string): Promise<ContestEntry> {
     const dto = await this.apiClient.get<TeamResponseDTO>(
       API_ENDPOINTS.CONTESTS.MY_TEAM(contestId)

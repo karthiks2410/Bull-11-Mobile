@@ -47,6 +47,7 @@ export const API_ENDPOINTS = {
     COMPLETED: '/api/contests/completed',
     JOIN: (id: string) => `/api/contests/${id}/join`,
     SUBMIT_TEAM: (id: string) => `/api/contests/${id}/team`,
+    UPDATE_TEAM: (id: string) => `/api/contests/${id}/team`,
     MY_TEAM: (id: string) => `/api/contests/${id}/my-team`,
     WITHDRAW: (id: string) => `/api/contests/${id}/withdraw`,
     LEADERBOARD: (id: string) => `/api/contests/${id}/leaderboard`,
