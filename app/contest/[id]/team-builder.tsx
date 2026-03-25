@@ -101,27 +101,16 @@ export default function TeamBuilderScreen() {
         return;
       }
 
-      // Filter NSE/BSE only
-      const validResults = results.filter(
-        (stock) =>
-          stock &&
-          stock.symbol &&
-          stock.name &&
-          stock.exchange &&
-          (stock.exchange === 'NSE' || stock.exchange === 'BSE') &&
-          stock.instrumentToken &&
-          typeof stock.instrumentToken === 'number' &&
-          stock.instrumentToken > 0
-      );
+      // Filter NSE/BSE only, sort NSE first
+      const sortedResults = results
+        .filter((stock) => stock && stock.symbol && (stock.exchange === 'NSE' || stock.exchange === 'BSE'))
+        .sort((a, b) => {
+          if (a.exchange === 'NSE' && b.exchange !== 'NSE') return -1;
+          if (a.exchange !== 'NSE' && b.exchange === 'NSE') return 1;
+          return 0;
+        });
 
-      // Sort NSE first
-      const sortedResults = validResults.sort((a, b) => {
-        if (a.exchange === 'NSE' && b.exchange !== 'NSE') return -1;
-        if (a.exchange !== 'NSE' && b.exchange === 'NSE') return 1;
-        return 0;
-      });
-
-      setSearchResults(sortedResults);
+      setSearchResults(sortedResults.length > 0 ? sortedResults : results);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Search failed';
       setError(errorMessage);

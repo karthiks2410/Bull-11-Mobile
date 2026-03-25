@@ -151,24 +151,14 @@ export default function NewGameScreen() {
         return;
       }
 
-      // Validate result data structure and filter only NSE/BSE (exclude derivatives like NFO, BFO, etc.)
-      const validResults = results.filter(
-        stock => stock &&
-                 stock.symbol &&
-                 stock.name &&
-                 stock.exchange &&
-                 (stock.exchange === 'NSE' || stock.exchange === 'BSE') &&
-                 stock.instrumentToken &&
-                 typeof stock.instrumentToken === 'number' &&
-                 stock.instrumentToken > 0
-      );
-
-      // Sort to prioritize NSE stocks first (NSE is primary Indian exchange)
-      const sortedResults = validResults.sort((a, b) => {
-        if (a.exchange === 'NSE' && b.exchange !== 'NSE') return -1;
-        if (a.exchange !== 'NSE' && b.exchange === 'NSE') return 1;
-        return 0;
-      });
+      // Filter NSE/BSE only, sort NSE first
+      const sortedResults = results
+        .filter((stock) => stock && stock.symbol && (stock.exchange === 'NSE' || stock.exchange === 'BSE'))
+        .sort((a, b) => {
+          if (a.exchange === 'NSE' && b.exchange !== 'NSE') return -1;
+          if (a.exchange !== 'NSE' && b.exchange === 'NSE') return 1;
+          return 0;
+        });
 
       if (sortedResults.length === 0) {
         setSearchResults([]);
