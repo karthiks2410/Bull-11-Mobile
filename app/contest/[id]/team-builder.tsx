@@ -4,7 +4,7 @@
  * Reuses stock search logic from new-game.tsx
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -83,7 +83,7 @@ export default function TeamBuilderScreen() {
     }
   };
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = async (query: string) => {
     if (!query || query.trim().length === 0) {
       setSearchResults([]);
       setError(null);
@@ -118,7 +118,7 @@ export default function TeamBuilderScreen() {
     } finally {
       setSearching(false);
     }
-  }, []);
+  };
 
   const handleSearchInputChange = (text: string) => {
     setSearchQuery(text);
