@@ -224,7 +224,7 @@ export class ContestRepositoryImpl implements ContestRepository {
       instrumentToken: dto.symbol, // Backend doesn't return instrument token in StockDetail
       openingPrice: dto.entryPrice,
       currentPrice: dto.currentPrice,
-      closingPrice: undefined, // Not available in StockDetail
+      closingPrice: dto.currentPrice, // Final price when contest ended
       percentageChange: dto.changePercent,
     };
   };
