@@ -21,7 +21,7 @@ import { theme } from '@/src/core/theme';
 import { container } from '@/src/core/di/container';
 import { useAuth } from '@/src/presentation/hooks/useAuth';
 
-type FilterType = 'all' | 'today' | 'week' | 'registration' | 'live';
+type FilterType = 'all' | 'today' | 'week' | 'registration';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -122,19 +122,25 @@ export default function HomeScreen() {
         });
         break;
       case 'week':
-        // Show contests in next 7 days
+        // Show contests within this calendar week (Mon–Sun)
         filtered = filtered.filter((c) => {
           const now = new Date();
-          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
           const startDate = new Date(c.startTime);
-          return startDate >= now && startDate <= weekFromNow;
+          // Get Monday of current week
+          const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+          const diffToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+          const monday = new Date(now);
+          monday.setDate(now.getDate() + diffToMonday);
+          monday.setHours(0, 0, 0, 0);
+          // Get Sunday of current week
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
+          sunday.setHours(23, 59, 59, 999);
+          return startDate >= monday && startDate <= sunday;
         });
         break;
       case 'registration':
         filtered = filtered.filter((c) => c.status === ContestStatus.REGISTRATION_OPEN);
-        break;
-      case 'live':
-        filtered = filtered.filter((c) => c.status === ContestStatus.LIVE);
         break;
       case 'all':
       default:
@@ -282,7 +288,6 @@ export default function HomeScreen() {
         {renderFilterPill('today', 'Today')}
         {renderFilterPill('week', 'This Week')}
         {renderFilterPill('registration', 'Open')}
-        {renderFilterPill('live', 'Live')}
       </HStack>
 
       {/* Contest List */}
