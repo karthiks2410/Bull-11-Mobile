@@ -52,6 +52,8 @@ export interface ContestStock {
   readonly currentPrice?: number;
   readonly closingPrice?: number;
   readonly percentageChange?: number;
+  readonly points?: number;
+  readonly captain?: boolean;
 }
 
 /**

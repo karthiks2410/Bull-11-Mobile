@@ -9,7 +9,7 @@
     "web": "expo start --web --port 5050",
     "lint": "expo lint",
     "test": "npm run test:qunit",
-    "test:build": "esbuild tests/logout.test.ts --bundle --outfile=tests/logout.test.bundle.js --platform=browser --format=iife --external:react-native --external:expo-router",
+    "test:build": "esbuild tests/logout.test.ts --bundle --outfile=tests/logout.test.bundle.js --platform=browser --format=iife --external:react-native --external:expo-router && esbuild tests/stock-points.test.ts --bundle --outfile=tests/stock-points.test.bundle.js --platform=browser --format=iife --external:react-native --external:expo-router",
     "test:serve": "http-server . -p 8080 -o /tests/test-runner.html",
     "test:qunit": "npm run test:build && npm run test:serve",
     "test:watch": "esbuild tests/logout.test.ts --bundle --outfile=tests/logout.test.bundle.js --platform=browser --format=iife --watch"

@@ -14,6 +14,8 @@ export class StockMapper {
       exchange: dto.exchange as Exchange,
       instrumentToken: dto.instrumentToken,
       lastPrice: dto.lastPrice,
+      points: dto.points,
+      capCategory: dto.capCategory,
     };
   }
 }

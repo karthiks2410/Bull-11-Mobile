@@ -37,14 +37,14 @@ export interface ContestRepository {
   joinContest(contestId: string, teamName: string): Promise<void>;
 
   /**
-   * Submit team with 5 stock symbols
+   * Submit team with 5 stock symbols and optional captain
    */
-  submitTeam(contestId: string, stockSymbols: string[]): Promise<void>;
+  submitTeam(contestId: string, stockSymbols: string[], captainSymbol?: string): Promise<void>;
 
   /**
-   * Update an existing team with 5 stock symbols
+   * Update an existing team with 5 stock symbols and optional captain
    */
-  updateTeam(contestId: string, stockSymbols: string[]): Promise<void>;
+  updateTeam(contestId: string, stockSymbols: string[], captainSymbol?: string): Promise<void>;
 
   /**
    * Get user's team for a contest
