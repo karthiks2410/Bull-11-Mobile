@@ -405,7 +405,7 @@ export default function LeaderboardScreen() {
           </View>
         </View>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="theme.colors.primary.main" />
+          <ActivityIndicator size="large" color={theme.colors.primary.main} />
           <Text style={styles.loadingText}>Loading leaderboard...</Text>
         </View>
       </View>
@@ -463,8 +463,8 @@ export default function LeaderboardScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor="theme.colors.primary.main"
-            colors={['theme.colors.primary.main']}
+            tintColor={theme.colors.primary.main}
+            colors={[theme.colors.primary.main]}
           />
         }
         onScrollBeginDrag={() => setIsScrolling(true)}
@@ -722,7 +722,7 @@ const styles = StyleSheet.create({
   leaderboardRowHighlight: {
     backgroundColor: 'rgba(0, 110, 28, 0.08)',
     borderLeftWidth: 3,
-    borderLeftColor: 'theme.colors.primary.main',
+    borderLeftColor: theme.colors.primary.main,
   },
   leaderboardRowTopThree: {
     backgroundColor: 'rgba(255, 215, 0, 0.05)',
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
   },
   rankTextHighlight: {
-    color: 'theme.colors.primary.main',
+    color: theme.colors.primary.main,
     fontWeight: '700',
   },
   nameText: {
@@ -749,7 +749,7 @@ const styles = StyleSheet.create({
   },
   nameTextHighlight: {
     fontWeight: '700',
-    color: 'theme.colors.primary.main',
+    color: theme.colors.primary.main,
   },
   teamText: {
     fontSize: 13,
@@ -826,7 +826,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: 'theme.colors.primary.main',
+    backgroundColor: theme.colors.primary.main,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,

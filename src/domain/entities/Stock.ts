@@ -14,4 +14,6 @@ export interface Stock {
   readonly exchange: Exchange;
   readonly instrumentToken: number;
   readonly lastPrice?: number;
+  readonly points?: number;
+  readonly capCategory?: string;
 }

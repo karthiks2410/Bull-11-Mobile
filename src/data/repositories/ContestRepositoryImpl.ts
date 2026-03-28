@@ -69,24 +69,24 @@ export class ContestRepositoryImpl implements ContestRepository {
     );
   }
 
-  async submitTeam(contestId: string, stockSymbols: string[]): Promise<void> {
+  async submitTeam(contestId: string, stockSymbols: string[], captainSymbol?: string): Promise<void> {
     const stocks: StockPickDTO[] = stockSymbols.map(symbol => ({
       symbol,
       exchange: 'NSE'
     }));
-    const request: TeamRequestDTO = { stocks, exchange: 'NSE' };
+    const request: TeamRequestDTO = { stocks, exchange: 'NSE', ...(captainSymbol ? { captain: captainSymbol } : {}) };
     await this.apiClient.post<TeamResponseDTO>(
       API_ENDPOINTS.CONTESTS.SUBMIT_TEAM(contestId),
       request
     );
   }
 
-  async updateTeam(contestId: string, stockSymbols: string[]): Promise<void> {
+  async updateTeam(contestId: string, stockSymbols: string[], captainSymbol?: string): Promise<void> {
     const stocks: StockPickDTO[] = stockSymbols.map(symbol => ({
       symbol,
       exchange: 'NSE'
     }));
-    const request: TeamRequestDTO = { stocks, exchange: 'NSE' };
+    const request: TeamRequestDTO = { stocks, exchange: 'NSE', ...(captainSymbol ? { captain: captainSymbol } : {}) };
     await this.apiClient.patch<TeamResponseDTO>(
       API_ENDPOINTS.CONTESTS.UPDATE_TEAM(contestId),
       request
@@ -226,6 +226,8 @@ export class ContestRepositoryImpl implements ContestRepository {
       currentPrice: dto.currentPrice,
       closingPrice: dto.currentPrice, // Final price when contest ended
       percentageChange: dto.changePercent,
+      points: dto.points,
+      captain: dto.captain,
     };
   };
 
@@ -246,7 +248,7 @@ export class ContestRepositoryImpl implements ContestRepository {
       teamName: dto.teamName,
       stocks,
       totalReturnPercentage,
-      totalPoints: 0, // Backend doesn't use points system yet
+      totalPoints: dto.totalPoints ?? 0,
       rank: dto.rank,
       submittedAt: new Date(), // Backend doesn't return submission time
     };
@@ -262,7 +264,7 @@ export class ContestRepositoryImpl implements ContestRepository {
       teamName: dto.teamName,
       stocks,
       totalReturnPercentage: dto.totalReturn,
-      totalPoints: 0, // Backend doesn't use points system yet
+      totalPoints: dto.totalPoints ?? 0,
       rank: dto.rank,
       submittedAt: new Date(), // Backend doesn't return submission time
     };
@@ -275,7 +277,7 @@ export class ContestRepositoryImpl implements ContestRepository {
       userName: dto.userName,
       teamName: dto.teamName,
       totalReturnPercentage: dto.totalReturn,
-      totalPoints: 0, // Backend doesn't use points system yet
+      totalPoints: dto.totalPoints ?? 0,
     };
   };
 }

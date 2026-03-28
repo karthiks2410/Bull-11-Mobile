@@ -126,6 +126,8 @@ export interface StockDTO {
   exchange: 'NSE' | 'BSE';
   instrumentToken: number;
   lastPrice?: number;
+  points?: number;
+  capCategory?: 'LARGE' | 'MID' | 'SMALL' | 'UNKNOWN';
 }
 
 // ==================== Contest DTOs ====================
@@ -152,6 +154,7 @@ export interface JoinContestRequestDTO {
 export interface TeamRequestDTO {
   stocks: StockPickDTO[];
   exchange?: string;
+  captain?: string;
 }
 
 export interface StockPickDTO {
@@ -184,6 +187,8 @@ export interface TeamResponseDTO {
   stocks: StockDetailDTO[];
   rank?: number;
   totalReturn?: number;
+  totalPoints?: number;
+  captain?: string;
 }
 
 export interface StockDetailDTO {
@@ -193,6 +198,8 @@ export interface StockDetailDTO {
   currentPrice: number;
   changePercent: number;
   position: number;
+  points?: number;
+  captain?: boolean;
 }
 
 export interface LeaderboardResponseDTO {
@@ -206,6 +213,7 @@ export interface LeaderboardEntryDTO {
   rank: number;
   teamName: string;
   totalReturn: number;
+  totalPoints?: number;
   userId: string;
   userName: string;
 }
@@ -217,6 +225,7 @@ export interface MyPerformanceResponseDTO {
   rank: number;
   totalParticipants: number;
   totalReturn: number;
+  totalPoints?: number;
   stocks: StockDetailDTO[];
 }
 

@@ -8,6 +8,7 @@ import { ContestRepository } from '../../repositories/ContestRepository';
 export interface UpdateTeamRequest {
   contestId: string;
   stockSymbols: string[];
+  captain?: string;
 }
 
 export class UpdateTeamUseCase {
@@ -18,13 +19,13 @@ export class UpdateTeamUseCase {
    * @param request Contest ID and stock symbols (must be exactly 5)
    */
   async execute(request: UpdateTeamRequest): Promise<void> {
-    const { contestId, stockSymbols } = request;
+    const { contestId, stockSymbols, captain } = request;
 
     // Business validation
     this.validateContestId(contestId);
     this.validateStockSymbols(stockSymbols);
 
-    await this.contestRepository.updateTeam(contestId, stockSymbols);
+    await this.contestRepository.updateTeam(contestId, stockSymbols, captain);
   }
 
   private validateContestId(contestId: string): void {
