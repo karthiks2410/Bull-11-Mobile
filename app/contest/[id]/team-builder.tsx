@@ -26,7 +26,7 @@ import { Exchange } from '@/src/domain/entities/Stock';
 import { theme } from '@/src/core/theme';
 
 const REQUIRED_STOCKS = 5;
-const BUDGET = 40;
+const BUDGET = 50;
 
 // Brand green — canonical value used throughout this screen
 const BRAND_GREEN = theme.colors.success.dark; // '#2E7D32'
@@ -262,7 +262,7 @@ export default function TeamBuilderScreen() {
 
   const getBudgetBarColor = () => {
     if (usedPoints > BUDGET) return theme.colors.error.main;
-    if (usedPoints > 35) return theme.colors.warning.main;
+    if (usedPoints > BUDGET * 0.9) return theme.colors.warning.main;
     return BRAND_GREEN;
   };
 
@@ -460,7 +460,7 @@ export default function TeamBuilderScreen() {
                     styles.budgetAmount,
                     usedPoints > BUDGET
                       ? styles.budgetOver
-                      : usedPoints > 35
+                      : usedPoints > BUDGET * 0.9
                         ? styles.budgetWarning
                         : styles.budgetOk,
                   ]}>
