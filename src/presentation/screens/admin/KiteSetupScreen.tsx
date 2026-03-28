@@ -179,9 +179,6 @@ export default function KiteSetupScreen() {
             [{ text: 'OK' }]
           );
         }
-      } else if (result.type === 'cancel') {
-        setStatus('idle');
-        Alert.alert('Cancelled', 'Authentication was cancelled.');
       }
     } catch (error: any) {
       setStatus('error');

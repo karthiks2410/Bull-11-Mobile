@@ -4,14 +4,15 @@
  * Can be easily integrated with remote logging services (Kibana, Sentry, etc.)
  */
 
-import { logger, consoleTransport, configLoggerType } from 'react-native-logs';
+import { logger, consoleTransport } from 'react-native-logs';
+import type { configLoggerType } from 'react-native-logs';
 
 /**
  * Logger Configuration
  * - Development: DEBUG level, colorized console output
  * - Production: INFO level, structured JSON output ready for remote services
  */
-const config: configLoggerType = {
+const config: configLoggerType<typeof consoleTransport, 'debug' | 'info' | 'warn' | 'error'> = {
   levels: {
     debug: 0,
     info: 1,

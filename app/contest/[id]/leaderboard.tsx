@@ -355,7 +355,7 @@ export default function LeaderboardScreen() {
           isTopThree && styles.leaderboardRowTopThree,
         ]}
       >
-        <View style={[styles.col, styles.colRank]}>
+        <View style={[styles.colRank]}>
           {medal ? (
             <Text style={styles.medalText}>{medal}</Text>
           ) : (

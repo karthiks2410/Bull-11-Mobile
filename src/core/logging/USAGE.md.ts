@@ -28,16 +28,15 @@ function MyComponent() {
 
 export class LoginUseCase {
   private logger = getLogger('LoginUseCase');
+  // Note: authRepository would be injected via constructor in real usage
 
-  async execute(email: string, password: string) {
+  async execute(email: string, password: string): Promise<void> {
     this.logger.debug('Login attempt', { email });
 
     try {
-      const result = await this.authRepository.login(email, password);
-      this.logger.info('Login successful', { userId: result.id });
-      return result;
+      this.logger.info('Login successful', { email });
     } catch (error) {
-      this.logger.error('Login failed', { email, error: error.message });
+      this.logger.error('Login failed', { email, error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -68,6 +67,11 @@ export class ApiClient {
 // Example 4: Security Event Logging
 // ============================================
 
+function containsSQLKeywords(input: string): boolean {
+  const sqlPattern = /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|WHERE|FROM)\b/i;
+  return sqlPattern.test(input);
+}
+
 export function validateInput(input: string) {
   const logger = getLogger('Security');
 
@@ -76,8 +80,8 @@ export function validateInput(input: string) {
     return false;
   }
 
-  if (containsSQLInjection(input)) {
-    logger.warn('SQL injection attempt detected', { input: input.substring(0, 20) });
+  if (containsSQLKeywords(input)) {
+    logger.warn('Potential SQL injection attempt detected', { input: input.substring(0, 20) });
     return false;
   }
 

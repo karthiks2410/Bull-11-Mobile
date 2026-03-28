@@ -13,7 +13,7 @@ const WAKE_UP_DURATION_MS = 10 * 60 * 1000; // 10 minutes
 export const useServerWakeUp = () => {
   const [isWakingUp, setIsWakingUp] = useState(false);
   const requestStartTime = useRef<number | null>(null);
-  const wakeUpTimer = useRef<NodeJS.Timeout | null>(null);
+  const wakeUpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Check if server recently woke up (within last 10 minutes)

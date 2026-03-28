@@ -151,7 +151,50 @@ export class ContestRepositoryImpl implements ContestRepository {
     }
   }
 
-  // ==================== Admin Methods ====================
+  async getMyContestsWithContests(): Promise<{ entries: ContestEntry[]; contests: Contest[] }> {
+    try {
+      const dtos = await this.apiClient.get<TeamResponseDTO[]>(
+        API_ENDPOINTS.CONTESTS.MY_CONTESTS
+      );
+
+      if (!dtos || !Array.isArray(dtos)) {
+        return { entries: [], contests: [] };
+      }
+
+      const validDtos = dtos.filter(dto => !!dto.contestId);
+
+      const entries = validDtos.map(this.mapToContestEntry);
+
+      // Build Contest objects from embedded fields — no extra API calls needed
+      const contestMap = new Map<string, Contest>();
+      validDtos.forEach(dto => {
+        if (!contestMap.has(dto.contestId) && dto.contestName && dto.contestStatus) {
+          contestMap.set(dto.contestId, {
+            id: dto.contestId,
+            name: dto.contestName,
+            description: '',
+            startTime: this.parseUtcDate(dto.contestStart ?? ''),
+            endTime: this.parseUtcDate(dto.contestEnd ?? ''),
+            registrationEndTime: this.parseUtcDate(dto.contestStart ?? ''),
+            status: dto.contestStatus as ContestStatus,
+            type: 'DAILY' as any,
+            maxParticipants: dto.maxParticipants ?? 0,
+            currentParticipants: dto.currentParticipants ?? 0,
+            entryFee: dto.entryFee ?? 0,
+            prizePool: dto.prizePool ?? 0,
+            createdAt: new Date(),
+          });
+        }
+      });
+
+      return { entries, contests: Array.from(contestMap.values()) };
+    } catch (error) {
+      console.error('[ContestRepository] Error in getMyContestsWithContests:', error);
+      throw error;
+    }
+  }
+
+
 
   async createContest(request: CreateContestRequestDTO): Promise<Contest> {
     const dto = await this.apiClient.post<ContestResponseDTO>(
