@@ -17,7 +17,7 @@ import Animated, {
 import { theme } from '@/src/core/theme';
 
 interface SkeletonBoxProps {
-  width: number | string;
+  width: number | `${number}%`;
   height: number;
   borderRadius?: number;
   shimmerOffset?: number;
