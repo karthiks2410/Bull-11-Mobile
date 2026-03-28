@@ -6,6 +6,7 @@
 import QUnit from 'qunit';
 import { SubmitTeamUseCase } from '../src/domain/usecases/contest/SubmitTeamUseCase';
 import { UpdateTeamUseCase } from '../src/domain/usecases/contest/UpdateTeamUseCase';
+import { GetMyContestsWithContestsUseCase } from '../src/domain/usecases/contest/GetMyContestsWithContestsUseCase';
 import { StockMapper } from '../src/data/mappers/StockMapper';
 
 // ===========================
@@ -61,6 +62,7 @@ function makeMockRepo() {
     getLeaderboard: async () => [],
     getMyPerformance: async () => { throw new Error('not implemented'); },
     getMyContests: async () => [],
+    getMyContestsWithContests: async () => ({ entries: [], contests: [] }),
   };
 }
 
@@ -277,5 +279,104 @@ QUnit.module('StockMapper — points and capCategory', () => {
     assert.equal(stock.exchange, 'BSE');
     assert.equal(stock.instrumentToken, 408065);
     assert.equal(stock.lastPrice, 1700);
+  });
+});
+
+// ===========================
+// Module 6: GetMyContestsWithContestsUseCase
+// ===========================
+
+QUnit.module('GetMyContestsWithContestsUseCase', () => {
+  QUnit.test('returns entries and contests from repository', async (assert) => {
+    const mockEntry = {
+      id: 'contest-1-user-1', contestId: 'contest-1', userId: 'user-1',
+      teamName: 'Bulls', stocks: [], totalReturnPercentage: 0, totalPoints: 0,
+      rank: undefined, submittedAt: new Date(),
+    };
+    const mockContest = {
+      id: 'contest-1', name: 'Monday Showdown', description: '',
+      startTime: new Date(), endTime: new Date(), registrationEndTime: new Date(),
+      status: 'REGISTRATION_OPEN' as any, type: 'DAILY' as any,
+      maxParticipants: 20, currentParticipants: 5, entryFee: 100, prizePool: 1000,
+      createdAt: new Date(),
+    };
+
+    const repo = {
+      ...makeMockRepo(),
+      getMyContestsWithContests: async () => ({
+        entries: [mockEntry],
+        contests: [mockContest],
+      }),
+    };
+
+    const useCase = new GetMyContestsWithContestsUseCase(repo as any);
+    const result = await useCase.execute();
+
+    assert.equal(result.entries.length, 1, 'Should return 1 entry');
+    assert.equal(result.contests.length, 1, 'Should return 1 contest');
+    assert.equal(result.entries[0].contestId, 'contest-1');
+    assert.equal(result.contests[0].name, 'Monday Showdown');
+  });
+
+  QUnit.test('returns empty arrays when no contests joined', async (assert) => {
+    const repo = {
+      ...makeMockRepo(),
+      getMyContestsWithContests: async () => ({ entries: [], contests: [] }),
+    };
+
+    const useCase = new GetMyContestsWithContestsUseCase(repo as any);
+    const result = await useCase.execute();
+
+    assert.equal(result.entries.length, 0);
+    assert.equal(result.contests.length, 0);
+  });
+
+  QUnit.test('propagates repository errors', async (assert) => {
+    const repo = {
+      ...makeMockRepo(),
+      getMyContestsWithContests: async () => { throw new Error('Network error'); },
+    };
+
+    const useCase = new GetMyContestsWithContestsUseCase(repo as any);
+
+    try {
+      await useCase.execute();
+      assert.ok(false, 'Should have thrown');
+    } catch (e: any) {
+      assert.equal(e.message, 'Network error');
+    }
+  });
+
+  QUnit.test('entries and contests counts match (one contest per entry)', async (assert) => {
+    const makeEntry = (contestId: string) => ({
+      id: `${contestId}-user-1`, contestId, userId: 'user-1',
+      teamName: 'Bulls', stocks: [], totalReturnPercentage: 0, totalPoints: 0,
+      rank: undefined, submittedAt: new Date(),
+    });
+    const makeContest = (id: string) => ({
+      id, name: `Contest ${id}`, description: '',
+      startTime: new Date(), endTime: new Date(), registrationEndTime: new Date(),
+      status: 'REGISTRATION_OPEN' as any, type: 'DAILY' as any,
+      maxParticipants: 20, currentParticipants: 1, entryFee: 100, prizePool: 1000,
+      createdAt: new Date(),
+    });
+
+    const repo = {
+      ...makeMockRepo(),
+      getMyContestsWithContests: async () => ({
+        entries: ['c1', 'c2', 'c3'].map(makeEntry),
+        contests: ['c1', 'c2', 'c3'].map(makeContest),
+      }),
+    };
+
+    const useCase = new GetMyContestsWithContestsUseCase(repo as any);
+    const result = await useCase.execute();
+
+    assert.equal(result.entries.length, 3);
+    assert.equal(result.contests.length, 3);
+    result.entries.forEach((entry, i) => {
+      const contest = result.contests.find(c => c.id === entry.contestId);
+      assert.ok(contest, `Contest found for entry ${i}`);
+    });
   });
 });

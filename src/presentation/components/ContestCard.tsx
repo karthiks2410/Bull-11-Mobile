@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Animated } from 'react-native';
+import { Animated, View, Text as RNText, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, Text, Pressable, HStack, VStack } from 'native-base';
 import { Contest, ContestEntry, ContestStatus } from '@/src/domain/entities/Contest';
 import { ContestBadge } from './ContestBadge';
@@ -82,160 +82,106 @@ export const ContestCard: React.FC<ContestCardProps> = ({
   };
 
   // Render based on variant
-  const renderBrowseCard = (contest: Contest) => (
-    <Pressable
-      onPress={onPress}
-      bg={theme.colors.background.paper}
-      borderRadius="2xl"
-      p={4}
-      mb={3}
-      shadow={2}
-      _pressed={{ opacity: 0.8 }}
-    >
-      <HStack justifyContent="space-between" alignItems="flex-start" mb={3}>
-        <Box flex={1} mr={3}>
-          <Text fontSize="lg" fontWeight="700" color={theme.colors.text.primary} mb={1}>
-            {contest.name}
-          </Text>
-          <Text fontSize="sm" color={theme.colors.text.secondary} numberOfLines={2} lineHeight="md">
-            {contest.description}
-          </Text>
-        </Box>
-        <ContestBadge status={contest.status} size="sm" />
-      </HStack>
+  const renderBrowseCard = (contest: Contest) => {
+    const fillPercent = Math.min((contest.currentParticipants / contest.maxParticipants) * 100, 100);
+    const spotsLeft = contest.maxParticipants - contest.currentParticipants;
+    const isAlmostFull = fillPercent >= 80;
+    const timeLabel = contest.status === ContestStatus.UPCOMING
+      ? getTimeRemaining(contest.startTime)
+      : formatTime(contest.startTime);
 
-      <HStack
-        alignItems="center"
-        mb={3}
-        bg="rgba(0, 110, 28, 0.05)"
-        borderRadius="xl"
-        p={3}
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.88}
+        style={browseStyles.card}
       >
-        <VStack flex={1} alignItems="center">
-          <Text fontSize="xs" color={theme.colors.text.secondary} mb={1}>
-            Prize Pool
-          </Text>
-          <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary}>
-            {formatCurrency(contest.prizePool)}
-          </Text>
-        </VStack>
-        <Box w="1px" h={8} bg={theme.colors.neutral.gray300} />
-        <VStack flex={1} alignItems="center">
-          <Text fontSize="xs" color={theme.colors.text.secondary} mb={1}>
-            Entry Fee
-          </Text>
-          <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary}>
-            {formatCurrency(contest.entryFee)}
-          </Text>
-        </VStack>
-        <Box w="1px" h={8} bg={theme.colors.neutral.gray300} />
-        <VStack flex={1} alignItems="center">
-          <Text fontSize="xs" color={theme.colors.text.secondary} mb={1}>
-            Spots
-          </Text>
-          <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary}>
-            {contest.currentParticipants} / {contest.maxParticipants}
-          </Text>
-        </VStack>
-      </HStack>
+        {/* Left accent border */}
+        <View style={[browseStyles.leftBorder, isAlmostFull && browseStyles.leftBorderUrgent]} />
 
-      <HStack justifyContent="space-between" alignItems="center">
-        <Text fontSize="sm" color={theme.colors.text.secondary}>
-          {contest.status === ContestStatus.UPCOMING
-            ? getTimeRemaining(contest.startTime)
-            : formatTime(contest.startTime)}
-        </Text>
-        {contest.status === ContestStatus.REGISTRATION_OPEN && (
-          isUserJoined ? (
-            <Box
-              bg="#e8f5e9"
-              borderRadius="full"
-              px={5}
-              py={2.5}
-            >
-              <Text fontSize="sm" fontWeight="700" color="#2e7d32">
-                Registered
-              </Text>
-            </Box>
-          ) : onJoin ? (
-            <Pressable
-              onPress={(e) => {
-                e.stopPropagation();
-                onJoin();
-              }}
-              bg="#1a1a1a"
-              borderRadius="full"
-              px={5}
-              py={2.5}
-              _pressed={{ opacity: 0.8 }}
-            >
-              <Text fontSize="sm" fontWeight="700" color="white">
-                Join Contest
-              </Text>
-            </Pressable>
-          ) : null
-        )}
-      </HStack>
-    </Pressable>
-  );
+        {/* Inner content */}
+        <View style={browseStyles.inner}>
+
+          {/* Header row: contest name + join action */}
+          <View style={browseStyles.header}>
+            <RNText style={browseStyles.contestName} numberOfLines={1}>
+              {contest.name}
+            </RNText>
+            {contest.status === ContestStatus.REGISTRATION_OPEN && (
+              isUserJoined ? (
+                <View style={browseStyles.joinedBadge}>
+                  <RNText style={browseStyles.joinedBadgeText}>✓ Joined</RNText>
+                </View>
+              ) : onJoin ? (
+                <TouchableOpacity
+                  onPress={(e) => { e.stopPropagation(); onJoin!(); }}
+                  style={browseStyles.joinButton}
+                  activeOpacity={0.75}
+                >
+                  <RNText style={browseStyles.joinButtonText}>Join</RNText>
+                </TouchableOpacity>
+              ) : null
+            )}
+          </View>
+
+          {/* Progress bar */}
+          <View style={browseStyles.progressTrack}>
+            <View style={[
+              browseStyles.progressFill,
+              { width: `${fillPercent}%` as `${number}%` },
+              isAlmostFull && browseStyles.progressFillUrgent,
+            ]} />
+          </View>
+
+          {/* Footer row: joined count on left, time on right */}
+          <View style={browseStyles.footer}>
+            <View style={browseStyles.metaLeft}>
+              <RNText style={browseStyles.metaText}>
+                <RNText style={browseStyles.metaCount}>{contest.currentParticipants}</RNText>
+                <RNText style={browseStyles.metaSep}> / {contest.maxParticipants} joined</RNText>
+              </RNText>
+              {spotsLeft > 0 && spotsLeft <= 20 && (
+                <View style={browseStyles.urgentTag}>
+                  <RNText style={browseStyles.urgentTagText}>{spotsLeft} left</RNText>
+                </View>
+              )}
+            </View>
+            <RNText style={browseStyles.timeLabel}>◷ {timeLabel}</RNText>
+          </View>
+
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderUpcomingCard = (contest: Contest) => (
     <Pressable
       onPress={onPress}
       bg={theme.colors.background.paper}
-      borderRadius="2xl"
+      borderRadius="xl"
       p={4}
-      mb={3}
-      shadow={2}
+      mb={2}
+      shadow={1}
       _pressed={{ opacity: 0.8 }}
     >
-      <HStack justifyContent="space-between" alignItems="flex-start" mb={3}>
-        <Text fontSize="lg" fontWeight="700" color={theme.colors.text.primary}>
+      {/* Name + time on same row */}
+      <HStack justifyContent="space-between" alignItems="center" mb={3}>
+        <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary} flex={1} mr={3} numberOfLines={1}>
           {contest.name}
         </Text>
-        <ContestBadge status={contest.status} size="sm" />
+        <Text fontSize="xs" fontWeight="600" color={theme.colors.primary.main}>
+          {getTimeRemaining(contest.startTime)}
+        </Text>
       </HStack>
 
-      <HStack
-        alignItems="center"
-        mb={3}
-        bg="rgba(0, 110, 28, 0.05)"
-        borderRadius="xl"
-        p={3}
-      >
-        <VStack flex={1} alignItems="center">
-          <Text fontSize="xs" color={theme.colors.text.secondary} mb={1}>
-            Entry Fee
-          </Text>
-          <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary}>
-            {formatCurrency(contest.entryFee)}
-          </Text>
-        </VStack>
-        <Box w="1px" h={8} bg={theme.colors.neutral.gray300} />
-        <VStack flex={1} alignItems="center">
-          <Text fontSize="xs" color={theme.colors.text.secondary} mb={1}>
-            Prize Pool
-          </Text>
-          <Text fontSize="md" fontWeight="700" color={theme.colors.text.primary}>
-            {formatCurrency(contest.prizePool)}
-          </Text>
-        </VStack>
-      </HStack>
-
-      <Text fontSize="sm" color={theme.colors.text.secondary} mb={3}>
-        {getTimeRemaining(contest.startTime)}
-      </Text>
-
+      {/* Action buttons */}
       <HStack space={2}>
         {onEditTeam && (
           <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              onEditTeam();
-            }}
+            onPress={(e) => { e.stopPropagation(); onEditTeam(); }}
             flex={1}
-            bg="rgba(0, 110, 28, 0.1)"
-            borderRadius="full"
+            bg="rgba(0, 110, 28, 0.08)"
+            borderRadius="lg"
             py={2.5}
             alignItems="center"
             _pressed={{ opacity: 0.8 }}
@@ -247,13 +193,10 @@ export const ContestCard: React.FC<ContestCardProps> = ({
         )}
         {onWithdraw && (
           <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              onWithdraw();
-            }}
+            onPress={(e) => { e.stopPropagation(); onWithdraw(); }}
             flex={1}
-            bg="rgba(179, 39, 42, 0.1)"
-            borderRadius="full"
+            bg="rgba(179, 39, 42, 0.08)"
+            borderRadius="lg"
             py={2.5}
             alignItems="center"
             _pressed={{ opacity: 0.8 }}
@@ -474,3 +417,128 @@ export const ContestCard: React.FC<ContestCardProps> = ({
 
   return null;
 };
+
+const browseStyles = StyleSheet.create({
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    marginBottom: 12,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: '#006e1c',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 110, 28, 0.1)',
+  },
+  leftBorder: {
+    width: 4,
+    backgroundColor: '#006e1c',
+  },
+  leftBorderUrgent: {
+    backgroundColor: '#b3272a',
+  },
+  inner: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingTop: 18,
+    paddingBottom: 18,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  contestName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    flex: 1,
+    marginRight: 8,
+  },
+  progressTrack: {
+    height: 6,
+    backgroundColor: 'rgba(0, 110, 28, 0.12)',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: '100%',
+    backgroundColor: '#006e1c',
+    borderRadius: 3,
+  },
+  progressFillUrgent: {
+    backgroundColor: '#b3272a',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  metaLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  metaText: {
+    fontSize: 12,
+  },
+  metaCount: {
+    color: '#1a1a1a',
+    fontWeight: '600',
+  },
+  metaSep: {
+    color: '#9ca3af',
+  },
+  urgentTag: {
+    backgroundColor: 'rgba(179, 39, 42, 0.08)',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  urgentTagText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#b3272a',
+  },
+  timeLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#006e1c',
+  },
+  joinButton: {
+    backgroundColor: '#006e1c',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    marginLeft: 8,
+  },
+  joinButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  joinedBadge: {
+    backgroundColor: 'rgba(0, 110, 28, 0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 110, 28, 0.2)',
+    marginLeft: 8,
+  },
+  joinedBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#006e1c',
+  },
+});

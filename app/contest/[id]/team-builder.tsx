@@ -146,9 +146,8 @@ export default function TeamBuilderScreen() {
         });
 
       setSearchResults(sortedResults.length > 0 ? sortedResults : results);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Search failed';
-      setError(errorMessage);
+    } catch {
+      setError('Something went wrong. Please try again.');
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -253,8 +252,10 @@ export default function TeamBuilderScreen() {
         });
       }, 2000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit team';
-      setError(errorMessage);
+      const message = err instanceof Error ? err.message : '';
+      // Hide raw backend/infrastructure errors from the user
+      const isUserFacing = message.includes('already') || message.includes('Budget') || message.includes('stocks');
+      setError(isUserFacing ? message : 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -526,7 +527,6 @@ export default function TeamBuilderScreen() {
           {error && (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>{error}</Text>
-              <Text style={styles.errorRetryHint}>Tap the button below to try again.</Text>
             </View>
           )}
 

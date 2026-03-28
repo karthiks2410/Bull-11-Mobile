@@ -189,6 +189,15 @@ export interface TeamResponseDTO {
   totalReturn?: number;
   totalPoints?: number;
   captain?: string;
+  // Embedded contest metadata (added in N+1 fix)
+  contestName?: string;
+  contestStatus?: string;
+  contestStart?: string;
+  contestEnd?: string;
+  maxParticipants?: number;
+  currentParticipants?: number;
+  entryFee?: number;
+  prizePool?: number;
 }
 
 export interface StockDetailDTO {

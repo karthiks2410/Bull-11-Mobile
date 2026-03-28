@@ -26,7 +26,7 @@ type FilterType = 'all' | 'today' | 'week' | 'registration';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { isAuthenticated, updateActivity } = useAuth();
+  const { isAuthenticated, updateActivity, user } = useAuth();
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const [contests, setContests] = useState<Contest[]>([]);
@@ -282,21 +282,24 @@ export default function HomeScreen() {
     <Box flex={1} bg={theme.colors.background.default}>
       {/* Header */}
       <Box
-        pt={16}
+        pt={8}
         px={5}
-        pb={4}
+        pb={3}
         bg={theme.colors.background.default}
       >
-        <Text fontSize="3xl" fontWeight="800" color={theme.colors.text.primary} mb={1} letterSpacing={-0.5}>
-          Upcoming Contests
+        <Text fontSize="sm" fontWeight="500" color={theme.colors.text.secondary} mb={0.5}>
+          {(() => {
+            const h = new Date().getHours();
+            return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+          })()}{user?.name ? `, ${user.name.split(' ')[0]}` : ''} 👋
         </Text>
-        <Text fontSize="md" color={theme.colors.text.secondary} fontWeight="500">
-          Draft your portfolio for the next market session.
+        <Text fontSize="2xl" fontWeight="800" color={theme.colors.text.primary} letterSpacing={-0.5}>
+          Upcoming Contests
         </Text>
       </Box>
 
       {/* Filter Pills */}
-      <HStack px={4} py={4} space={2} bg={theme.colors.background.default}>
+      <HStack px={4} py={2} space={2} bg={theme.colors.background.default}>
         {renderFilterPill('all', 'All')}
         {renderFilterPill('today', 'Today')}
         {renderFilterPill('week', 'This Week')}
@@ -308,7 +311,7 @@ export default function HomeScreen() {
         data={filteredContests}
         renderItem={renderContestCard}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 8, paddingBottom: 80 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

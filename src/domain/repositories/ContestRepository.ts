@@ -70,4 +70,9 @@ export interface ContestRepository {
    * Get all user's contest entries
    */
   getMyContests(): Promise<ContestEntry[]>;
+
+  /**
+   * Get user's contest entries with embedded contest metadata (no N+1)
+   */
+  getMyContestsWithContests(): Promise<{ entries: ContestEntry[]; contests: Contest[] }>;
 }

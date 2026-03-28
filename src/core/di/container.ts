@@ -50,6 +50,7 @@ import { WithdrawFromContestUseCase } from '@/src/domain/usecases/contest/Withdr
 import { GetLeaderboardUseCase } from '@/src/domain/usecases/contest/GetLeaderboardUseCase';
 import { GetMyPerformanceUseCase } from '@/src/domain/usecases/contest/GetMyPerformanceUseCase';
 import { GetMyContestsUseCase } from '@/src/domain/usecases/contest/GetMyContestsUseCase';
+import { GetMyContestsWithContestsUseCase } from '@/src/domain/usecases/contest/GetMyContestsWithContestsUseCase';
 
 /**
  * Dependency Injection Container
@@ -105,6 +106,7 @@ class DIContainer {
   readonly getLeaderboardUseCase: GetLeaderboardUseCase;
   readonly getMyPerformanceUseCase: GetMyPerformanceUseCase;
   readonly getMyContestsUseCase: GetMyContestsUseCase;
+  readonly getMyContestsWithContestsUseCase: GetMyContestsWithContestsUseCase;
 
   private constructor() {
     // Initialize infrastructure
@@ -154,6 +156,7 @@ class DIContainer {
     this.getLeaderboardUseCase = new GetLeaderboardUseCase(this.contestRepository);
     this.getMyPerformanceUseCase = new GetMyPerformanceUseCase(this.contestRepository);
     this.getMyContestsUseCase = new GetMyContestsUseCase(this.contestRepository);
+    this.getMyContestsWithContestsUseCase = new GetMyContestsWithContestsUseCase(this.contestRepository);
   }
 
   static getInstance(): DIContainer {

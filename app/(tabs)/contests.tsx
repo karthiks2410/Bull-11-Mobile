@@ -223,18 +223,12 @@ export default function ContestsScreen() {
       await updateActivity();
 
       // Get user's contest entries
-      const myEntries = await container.getMyContestsUseCase.execute();
+      const { entries: myEntries, contests: myContests } = await container.getMyContestsWithContestsUseCase.execute();
       setEntries(myEntries || []);
 
-      // Get contest details for each unique contest
-      const contestIds = [...new Set((myEntries || []).map(e => e.contestId))];
-      const contestsData = await Promise.all(
-        contestIds.map(id => container.getContestUseCase.execute({ contestId: id }))
-      );
-
-      // Build contest map
+      // Build contest map from embedded data — no extra per-contest API calls
       const contestMap = new Map<string, Contest>();
-      contestsData.forEach((contest) => contestMap.set(contest.id, contest));
+      (myContests || []).forEach((contest) => contestMap.set(contest.id, contest));
       setContests(contestMap);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load contests';
@@ -372,28 +366,17 @@ export default function ContestsScreen() {
     return (
       <Box flex={1} bg={theme.colors.background.default}>
         <Box
-          pt={16}
+        pt={8}
           px={5}
-          pb={4}
+          pb={3}
           bg={theme.colors.background.default}
         >
           <HStack justifyContent="space-between" alignItems="center">
-            <VStack flex={1}>
-              <Text fontSize="3xl" fontWeight="800" color={theme.colors.text.primary} mb={1} letterSpacing={-0.5}>
-                My Contests
-              </Text>
-              <Text fontSize="md" color={theme.colors.text.secondary} fontWeight="500">
-                Manage your active registrations and history.
-              </Text>
-            </VStack>
-            <Box
-              bg="#f3f3f3"
-              borderRadius="full"
-              py={2}
-              px={4}
-              alignItems="flex-end"
-            >
-              <Text fontSize="md" fontWeight="800" color="#006e1c" letterSpacing={-0.5}>
+            <Text fontSize="2xl" fontWeight="800" color={theme.colors.text.primary} letterSpacing={-0.5}>
+              My Contests
+            </Text>
+            <Box bg="#e8f5e9" borderRadius="full" py={1.5} px={4}>
+              <Text fontSize="sm" fontWeight="800" color="#006e1c">
                 ₹{USER_BALANCE.toLocaleString('en-IN')}
               </Text>
             </Box>
@@ -423,28 +406,17 @@ export default function ContestsScreen() {
     <Box flex={1} bg={theme.colors.background.default}>
       {/* Header with Balance */}
       <Box
-        pt={16}
+        pt={8}
         px={5}
-        pb={4}
+        pb={3}
         bg={theme.colors.background.default}
       >
         <HStack justifyContent="space-between" alignItems="center">
-          <VStack flex={1}>
-            <Text fontSize="3xl" fontWeight="800" color={theme.colors.text.primary} mb={1} letterSpacing={-0.5}>
-              My Contests
-            </Text>
-            <Text fontSize="md" color={theme.colors.text.secondary} fontWeight="500">
-              Manage your active registrations and history.
-            </Text>
-          </VStack>
-          <Box
-            bg="#f3f3f3"
-            borderRadius="full"
-            py={2}
-            px={4}
-            alignItems="flex-end"
-          >
-            <Text fontSize="md" fontWeight="800" color="#006e1c" letterSpacing={-0.5}>
+          <Text fontSize="2xl" fontWeight="800" color={theme.colors.text.primary} letterSpacing={-0.5}>
+            My Contests
+          </Text>
+          <Box bg="#e8f5e9" borderRadius="full" py={1.5} px={4}>
+            <Text fontSize="sm" fontWeight="800" color="#006e1c">
               ₹{USER_BALANCE.toLocaleString('en-IN')}
             </Text>
           </Box>
