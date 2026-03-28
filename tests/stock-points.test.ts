@@ -13,7 +13,7 @@ import { StockMapper } from '../src/data/mappers/StockMapper';
 // ===========================
 
 const DEFAULT_POINTS = 9;
-const BUDGET = 40;
+const BUDGET = 50;
 
 function calcUsedPoints(stocks: Array<{ points?: number }>): number {
   return stocks.reduce((sum, s) => sum + (s.points ?? DEFAULT_POINTS), 0);
@@ -83,17 +83,17 @@ QUnit.module('Budget Validation Logic', () => {
 
   QUnit.test('stock selection allowed when within budget (28+9=37)', (assert) => {
     const current = [{ points: 10 }, { points: 9 }, { points: 9 }]; // 28 pts
-    assert.ok(canAddStock(current, { points: 9 }), 'Should allow 28+9=37 ≤ 40');
+    assert.ok(canAddStock(current, { points: 9 }), 'Should allow 28+9=37 ≤ 50');
   });
 
-  QUnit.test('stock selection blocked when exceeds budget (33+10=43)', (assert) => {
-    const current = [{ points: 10 }, { points: 9 }, { points: 9 }, { points: 5 }]; // 33 pts
-    assert.notOk(canAddStock(current, { points: 10 }), 'Should block 33+10=43 > 40');
+  QUnit.test('stock selection blocked when exceeds budget (46+10=56)', (assert) => {
+    const current = [{ points: 10 }, { points: 9 }, { points: 9 }, { points: 18 }]; // 46 pts
+    assert.notOk(canAddStock(current, { points: 10 }), 'Should block 46+10=56 > 50');
   });
 
-  QUnit.test('stock selection allowed when exactly at budget (31+9=40)', (assert) => {
-    const current = [{ points: 10 }, { points: 10 }, { points: 11 }]; // 31 pts
-    assert.ok(canAddStock(current, { points: 9 }), 'Should allow 31+9=40 ≤ 40');
+  QUnit.test('stock selection allowed when exactly at budget (41+9=50)', (assert) => {
+    const current = [{ points: 10 }, { points: 10 }, { points: 12 }, { points: 9 }]; // 41 pts
+    assert.ok(canAddStock(current, { points: 9 }), 'Should allow 41+9=50 ≤ 50');
   });
 
   QUnit.test('empty team has 0 used points', (assert) => {
